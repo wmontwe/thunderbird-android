@@ -120,6 +120,7 @@ include(":plugins:openpgp-api-lib:openpgp-api")
 include(
     ":cli:autodiscovery-cli",
     ":cli:html-cleaner-cli",
+    ":cli:release-cli",
     ":cli:resource-mover-cli",
     ":cli:translation-cli",
 )
