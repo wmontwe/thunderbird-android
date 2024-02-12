@@ -19,6 +19,7 @@ dependencies {
     implementation(plugin(libs.plugins.dependency.check))
 
     implementation(libs.diff.utils)
+    implementation(libs.kotlinx.datetime)
     compileOnly(libs.android.tools.common)
 
     // This defines the used Kotlin version for all Plugin dependencies
