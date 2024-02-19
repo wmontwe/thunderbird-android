@@ -1,5 +1,7 @@
 package com.fsck.k9
 
+import app.k9mail.core.common.net.ssl.TrustedCertificateProvider
+import app.k9mail.core.featureflag.FeatureFlagFactory
 import app.k9mail.core.featureflag.FeatureFlagProvider
 import app.k9mail.core.featureflag.InMemoryFeatureFlagProvider
 import app.k9mail.feature.widget.message.list.messageListWidgetModule
@@ -11,6 +13,9 @@ import com.fsck.k9.controller.ControllerExtension
 import com.fsck.k9.crypto.EncryptionExtractor
 import com.fsck.k9.crypto.openpgp.OpenPgpEncryptionExtractor
 import com.fsck.k9.feature.featureLauncherModule
+import com.fsck.k9.feature.featureModule
+import com.fsck.k9.featureflag.InMemoryFeatureFlagFactory
+import com.fsck.k9.net.ssl.DefaultTrustedCertificateProvider
 import com.fsck.k9.notification.notificationModule
 import com.fsck.k9.preferences.K9StoragePersister
 import com.fsck.k9.preferences.StoragePersister
@@ -35,6 +40,7 @@ val commonAppModule = module {
             featureFlagFactory = get(),
         )
     }
+    single<TrustedCertificateProvider> { DefaultTrustedCertificateProvider() }
 }
 
 val commonAppModules = listOf(

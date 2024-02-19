@@ -2,6 +2,7 @@ package app.k9mail.feature.account.setup
 
 import android.content.Context
 import app.k9mail.autodiscovery.api.AutoDiscovery
+import app.k9mail.core.common.net.ssl.TrustedCertificateProvider
 import app.k9mail.core.common.oauth.OAuthConfigurationFactory
 import app.k9mail.core.common.provider.BrandNameProvider
 import app.k9mail.feature.account.common.AccountCommonExternalContract
@@ -77,6 +78,7 @@ class AccountSetupModuleKtTest : KoinTest {
         factory<AccountSetupExternalContract.AccountOwnerNameProvider> { mock() }
         single<List<AutoDiscovery>>(named("extraAutoDiscoveries")) { emptyList() }
         single<BrandNameProvider> { FakeBrandNameProvider }
+        single<TrustedCertificateProvider> { mock() }
     }
 
     @Test
