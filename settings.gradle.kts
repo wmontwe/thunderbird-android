@@ -103,6 +103,8 @@ include(
     ":backend:demo",
 )
 
+include(":library:logger")
+
 include(":plugins:openpgp-api-lib:openpgp-api")
 
 include(

@@ -28,6 +28,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import timber.log.Timber;
 
+// TODO move
 
 public class DefaultTrustedSocketFactory implements TrustedSocketFactory {
     private static final String[] ENABLED_CIPHERS;
