@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.preferencex)
     implementation(libs.timber)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.okhttp)
 
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)

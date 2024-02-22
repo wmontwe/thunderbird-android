@@ -1,7 +1,6 @@
 package app.k9mail.feature.account.setup
 
 import android.content.Context
-import app.k9mail.core.common.net.ssl.TrustedCertificateProvider
 import app.k9mail.core.common.oauth.OAuthConfigurationFactory
 import app.k9mail.feature.account.common.AccountCommonExternalContract
 import app.k9mail.feature.account.common.domain.entity.AccountState
@@ -62,7 +61,6 @@ class AccountSetupModuleKtTest : KoinTest {
         single<LocalKeyStore> { mock() }
         single<AccountCommonExternalContract.AccountStateLoader> { mock() }
         factory<AccountSetupExternalContract.AccountOwnerNameProvider> { mock() }
-        single<TrustedCertificateProvider> { mock() }
     }
 
     @Test
