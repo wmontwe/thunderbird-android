@@ -5,7 +5,6 @@ import app.k9mail.autodiscovery.api.AutoDiscoveryRegistry
 import app.k9mail.autodiscovery.api.AutoDiscoveryService
 import app.k9mail.autodiscovery.service.RealAutoDiscoveryRegistry
 import app.k9mail.autodiscovery.service.RealAutoDiscoveryService
-import app.k9mail.core.common.net.ssl.installTrustedCertificates
 import app.k9mail.feature.account.common.featureAccountCommonModule
 import app.k9mail.feature.account.oauth.featureAccountOAuthModule
 import app.k9mail.feature.account.server.settings.featureAccountServerSettingsModule
@@ -30,7 +29,6 @@ import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersFormUiMo
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersViewModel
 import com.fsck.k9.mail.folders.FolderFetcher
 import com.fsck.k9.mail.store.imap.ImapFolderFetcher
-import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named

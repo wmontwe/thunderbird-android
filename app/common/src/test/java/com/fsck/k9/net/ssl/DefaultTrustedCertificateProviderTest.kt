@@ -15,7 +15,7 @@ class DefaultTrustedCertificateProviderTest {
     @Config(sdk = [VERSION_CODES.N, VERSION_CODES.M, VERSION_CODES.LOLLIPOP_MR1, VERSION_CODES.LOLLIPOP])
     fun `should return certificates on pre-N devices`() {
         // Given
-        val provider = DefaultTrustedCertificateProvider()
+        val provider = CompatTrustedCertificateProvider()
 
         // When
         val result = provider.getCertificates()
@@ -28,7 +28,7 @@ class DefaultTrustedCertificateProviderTest {
     @Config(sdk = [VERSION_CODES.N_MR1, VERSION_CODES.O])
     fun `should return empty list on N_MR1 and later devices`() {
         // Given
-        val provider = DefaultTrustedCertificateProvider()
+        val provider = CompatTrustedCertificateProvider()
 
         // When
         val result = provider.getCertificates()
