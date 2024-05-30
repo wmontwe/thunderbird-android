@@ -17,6 +17,7 @@ dependencies {
     implementation(plugin(libs.plugins.spotless))
     implementation(plugin(libs.plugins.detekt))
     implementation(plugin(libs.plugins.dependency.check))
+    implementation(plugin(libs.plugins.android.lint))
 
     implementation(libs.diff.utils)
     compileOnly(libs.android.tools.common)

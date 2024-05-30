@@ -126,4 +126,5 @@ include(
 
 include(
     ":library:html-cleaner",
+    ":library:lint",
 )
