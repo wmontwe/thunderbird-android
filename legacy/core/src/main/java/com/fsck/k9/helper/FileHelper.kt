@@ -5,7 +5,9 @@ import java.io.IOException
 import timber.log.Timber
 
 object FileHelper {
+
     @JvmStatic
+    @Suppress("TooGenericExceptionCaught")
     fun touchFile(parentDir: File, name: String) {
         val file = File(parentDir, name)
         try {
@@ -44,6 +46,7 @@ object FileHelper {
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun move(from: File, to: File): Boolean {
         if (to.exists()) {
             if (!to.delete()) {
@@ -73,7 +76,7 @@ object FileHelper {
         if (!fromDir.exists()) {
             return
         }
-        if (!fromDir.isDirectory()) {
+        if (!fromDir.isDirectory) {
             if (toDir.exists()) {
                 if (!toDir.delete()) {
                     Timber.w("cannot delete already existing file/directory %s", toDir.absolutePath)
@@ -85,7 +88,7 @@ object FileHelper {
             }
             return
         }
-        if (!toDir.exists() || !toDir.isDirectory()) {
+        if (!toDir.exists() || !toDir.isDirectory) {
             if (toDir.exists()) {
                 if (!toDir.delete()) {
                     Timber.d("Unable to delete file: %s", toDir.absolutePath)
@@ -95,26 +98,35 @@ object FileHelper {
                 Timber.w("cannot create directory %s", toDir.absolutePath)
             }
         }
+        moveDirectory(fromDir, toDir)
+        if (!fromDir.delete()) {
+            Timber.w("cannot delete %s", fromDir.absolutePath)
+        }
+    }
+
+    private fun moveDirectory(fromDir: File, toDir: File) {
         val files = fromDir.listFiles().orEmpty()
         for (file in files) {
-            if (file.isDirectory()) {
+            if (file.isDirectory) {
                 moveRecursive(file, File(toDir, file.getName()))
                 if (!file.delete()) {
                     Timber.d("Unable to delete file: %s", toDir.absolutePath)
                 }
             } else {
-                val target = File(toDir, file.getName())
-                if (!file.renameTo(target)) {
-                    Timber.w(
-                        "cannot rename %s to %s - moving instead",
-                        file.absolutePath, target.absolutePath,
-                    )
-                    move(file, target)
-                }
+                moveFile(file, toDir)
             }
         }
-        if (!fromDir.delete()) {
-            Timber.w("cannot delete %s", fromDir.absolutePath)
+    }
+
+    private fun moveFile(file: File, toDir: File) {
+        val target = File(toDir, file.getName())
+        if (!file.renameTo(target)) {
+            Timber.w(
+                "cannot rename %s to %s - moving instead",
+                file.absolutePath,
+                target.absolutePath,
+            )
+            move(file, target)
         }
     }
 }
