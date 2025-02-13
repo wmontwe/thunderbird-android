@@ -71,6 +71,7 @@ include(
 )
 
 include(
+    ":feature:widget:common",
     ":feature:widget:message-list",
     ":feature:widget:shortcut",
     ":feature:widget:unread",
