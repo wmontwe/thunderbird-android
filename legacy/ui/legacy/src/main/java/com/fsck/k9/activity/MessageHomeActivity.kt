@@ -25,7 +25,6 @@ import app.k9mail.core.android.common.compat.BundleCompat
 import app.k9mail.core.android.common.contact.CachingRepository
 import app.k9mail.core.android.common.contact.ContactRepository
 import app.k9mail.core.ui.legacy.designsystem.atom.icon.Icons
-import app.k9mail.feature.funding.api.FundingManager
 import app.k9mail.feature.launcher.FeatureLauncherActivity
 import app.k9mail.feature.launcher.FeatureLauncherTarget
 import app.k9mail.legacy.message.controller.MessageReference
@@ -61,6 +60,7 @@ import net.thunderbird.core.preference.GeneralSettingsManager
 import net.thunderbird.core.preference.SplitViewMode
 import net.thunderbird.core.preference.interaction.PostRemoveNavigation
 import net.thunderbird.feature.account.storage.legacy.mapper.LegacyAccountDataMapper
+import net.thunderbird.feature.funding.api.FundingManager
 import net.thunderbird.feature.navigation.drawer.api.NavigationDrawer
 import net.thunderbird.feature.navigation.drawer.dropdown.DropDownDrawer
 import net.thunderbird.feature.navigation.drawer.dropdown.domain.entity.UnifiedDisplayAccount
