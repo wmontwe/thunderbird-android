@@ -62,7 +62,7 @@ internal class GoogleBillingClient(
         _purchasedContribution.asStateFlow()
 
     override suspend fun <T> connect(
-        onConnected: suspend () -> Outcome<T, ContributionError>
+        onConnected: suspend () -> Outcome<T, ContributionError>,
     ): Outcome<T, ContributionError> {
         val connectionResult = clientProvider.current.startConnection()
         val result = resultMapper.mapToOutcome(connectionResult) {}
