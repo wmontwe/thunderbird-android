@@ -28,6 +28,7 @@ import net.thunderbird.core.logging.legacy.Log
 import net.thunderbird.core.preference.BackgroundOps
 import net.thunderbird.core.preference.BackgroundSync
 import net.thunderbird.core.preference.GeneralSettingsManager
+import net.thunderbird.feature.account.AccountId
 
 /**
  * Starts and stops [AccountPushController]s as necessary. Manages the Push foreground service.
@@ -50,7 +51,7 @@ class PushController internal constructor(
 ) {
     private val lock = Any()
     private var initializationStarted = false
-    private val pushers = mutableMapOf<String, AccountPushController>()
+    private val pushers = mutableMapOf<AccountId, AccountPushController>()
 
     private val pushEnabledCollectorJobs = mutableMapOf<String, Job>()
 
@@ -138,10 +139,10 @@ class PushController internal constructor(
         launchUpdatePushers()
     }
 
-    private fun onBackendChanged(account: LegacyAccountDto) {
+    private fun onBackendChanged(accountId: AccountId) {
         coroutineScope.launch(coroutineDispatcher) {
             val accountPushController = synchronized(lock) {
-                pushers.remove(account.uuid)
+                pushers.remove(accountId)
             }
 
             accountPushController?.stop()
@@ -178,11 +179,11 @@ class PushController internal constructor(
         } else {
             realPushAccounts
         }
-        val pushAccountUuids = pushAccounts.map { it.uuid }
+        val pushAccountUuids = pushAccounts.map { it.id }
 
         val arePushersActive = synchronized(lock) {
             val currentPushAccountUuids = pushers.keys
-            val startPushAccountUuids = pushAccountUuids - currentPushAccountUuids
+            val startPushAccountIds = pushAccountUuids - currentPushAccountUuids
             val stopPushAccountUuids = currentPushAccountUuids - pushAccountUuids
 
             if (stopPushAccountUuids.isNotEmpty()) {
@@ -193,11 +194,12 @@ class PushController internal constructor(
                 }
             }
 
-            if (startPushAccountUuids.isNotEmpty()) {
-                Log.v("..Starting PushController for accounts: %s", startPushAccountUuids)
-                for (accountUuid in startPushAccountUuids) {
-                    val account = accountManager.getAccount(accountUuid) ?: error("Account not found: $accountUuid")
-                    pushers[accountUuid] = accountPushControllerFactory.create(account).also { accountPushController ->
+            if (startPushAccountIds.isNotEmpty()) {
+                Log.v("..Starting PushController for accounts: %s", startPushAccountIds)
+                for (accountId in startPushAccountIds) {
+                    val account =
+                        accountManager.getAccount(accountId.toString()) ?: error("Account not found: $accountId")
+                    pushers[accountId] = accountPushControllerFactory.create(account).also { accountPushController ->
                         accountPushController.start()
                     }
                 }

@@ -4,20 +4,23 @@ import com.fsck.k9.backend.api.Backend
 import com.fsck.k9.mail.ServerSettings
 import java.util.concurrent.CopyOnWriteArraySet
 import net.thunderbird.core.android.account.LegacyAccountDto
+import net.thunderbird.feature.account.AccountId
 
-class BackendManager(private val backendFactories: Map<String, BackendFactory>) {
-    private val backendCache = mutableMapOf<String, BackendContainer>()
+class BackendManager(
+    private val backendFactories: Map<String, BackendFactory>,
+) {
+    private val backendCache = mutableMapOf<AccountId, BackendContainer>()
     private val listeners = CopyOnWriteArraySet<BackendChangedListener>()
 
     fun getBackend(account: LegacyAccountDto): Backend {
         val newBackend = synchronized(backendCache) {
-            val container = backendCache[account.uuid]
+            val container = backendCache[account.id]
             if (container != null && isBackendStillValid(container, account)) {
                 return container.backend
             }
 
             createBackend(account).also { backend ->
-                backendCache[account.uuid] = BackendContainer(
+                backendCache[account.id] = BackendContainer(
                     backend,
                     account.incomingServerSettings,
                     account.outgoingServerSettings,
@@ -25,7 +28,7 @@ class BackendManager(private val backendFactories: Map<String, BackendFactory>) 
             }
         }
 
-        notifyListeners(account)
+        notifyListeners(account.id)
 
         return newBackend
     }
@@ -35,12 +38,12 @@ class BackendManager(private val backendFactories: Map<String, BackendFactory>) 
             container.outgoingServerSettings == account.outgoingServerSettings
     }
 
-    fun removeBackend(account: LegacyAccountDto) {
+    fun removeBackend(accountId: AccountId) {
         synchronized(backendCache) {
-            backendCache.remove(account.uuid)
+            backendCache.remove(accountId)
         }
 
-        notifyListeners(account)
+        notifyListeners(accountId)
     }
 
     private fun createBackend(account: LegacyAccountDto): Backend {
@@ -57,9 +60,9 @@ class BackendManager(private val backendFactories: Map<String, BackendFactory>) 
         listeners.remove(listener)
     }
 
-    private fun notifyListeners(account: LegacyAccountDto) {
+    private fun notifyListeners(accountId: AccountId) {
         for (listener in listeners) {
-            listener.onBackendChanged(account)
+            listener.onBackendChanged(accountId)
         }
     }
 }
@@ -71,5 +74,5 @@ private data class BackendContainer(
 )
 
 fun interface BackendChangedListener {
-    fun onBackendChanged(account: LegacyAccountDto)
+    fun onBackendChanged(accountId: AccountId)
 }

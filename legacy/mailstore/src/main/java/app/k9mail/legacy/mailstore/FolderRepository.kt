@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import net.thunderbird.core.android.account.LegacyAccountDto
 import net.thunderbird.core.common.exception.MessagingException
+import net.thunderbird.feature.account.AccountId
 import net.thunderbird.feature.mail.folder.api.Folder
 import net.thunderbird.feature.mail.folder.api.FolderDetails
 import net.thunderbird.feature.mail.folder.api.FolderType
@@ -140,8 +141,8 @@ class FolderRepository(
         return messageStore.getFolder(folderId) { true } ?: false
     }
 
-    fun updateFolderDetails(account: LegacyAccountDto, folderDetails: FolderDetails) {
-        val messageStore = messageStoreManager.getMessageStore(account)
+    fun updateFolderDetails(accountId: AccountId, folderDetails: FolderDetails) {
+        val messageStore = messageStoreManager.getMessageStore(accountId)
         messageStore.updateFolderSettings(folderDetails)
     }
 

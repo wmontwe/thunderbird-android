@@ -55,7 +55,7 @@ class FolderSettingsViewModel(
 
             val folderSettingsData = FolderSettingsData(
                 folder = folderDetails.folder,
-                dataStore = FolderSettingsDataStore(folderRepository, account, folderDetails),
+                dataStore = FolderSettingsDataStore(folderRepository, account.id, folderDetails),
             )
             emit(folderSettingsData)
         }
