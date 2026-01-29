@@ -4,8 +4,10 @@ import androidx.lifecycle.viewModelScope
 import app.k9mail.core.ui.compose.common.mvi.BaseViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import net.thunderbird.core.outcome.Outcome
 import net.thunderbird.core.outcome.handle
 import net.thunderbird.feature.funding.googleplay.domain.FundingDomainContract
+import net.thunderbird.feature.funding.googleplay.domain.FundingDomainContract.ContributionError
 import net.thunderbird.feature.funding.googleplay.domain.FundingDomainContract.UseCase
 import net.thunderbird.feature.funding.googleplay.domain.entity.AvailableContributions
 import net.thunderbird.feature.funding.googleplay.domain.entity.Contribution
@@ -25,7 +27,9 @@ internal class ContributionViewModel(
 
     init {
         viewModelScope.launch {
-            loadAvailableContributions()
+            getAvailableContributions().collect { result ->
+                handleAvailableContributionsResult(result)
+            }
         }
 
         viewModelScope.launch {
@@ -60,8 +64,8 @@ internal class ContributionViewModel(
         }
     }
 
-    private suspend fun loadAvailableContributions() {
-        getAvailableContributions().handle(
+    private fun handleAvailableContributionsResult(result: Outcome<AvailableContributions, ContributionError>) {
+        result.handle(
             onSuccess = { data ->
                 updateState { state ->
                     val selectedContribution = selectContribution(data)
@@ -227,7 +231,7 @@ internal class ContributionViewModel(
             )
         }
         viewModelScope.launch {
-            loadAvailableContributions()
+            // we don't need to do anything here, because the flow will be collected
         }
     }
 

@@ -2,6 +2,7 @@ package net.thunderbird.feature.funding.googleplay.domain
 
 import android.app.Activity
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import net.thunderbird.core.outcome.Outcome
 import net.thunderbird.feature.funding.googleplay.domain.entity.AvailableContributions
@@ -17,7 +18,7 @@ internal interface FundingDomainContract {
          * Get available contributions.
          */
         fun interface GetAvailableContributions {
-            suspend operator fun invoke(): Outcome<AvailableContributions, ContributionError>
+            operator fun invoke(): Flow<Outcome<AvailableContributions, ContributionError>>
         }
     }
 
@@ -29,26 +30,37 @@ internal interface FundingDomainContract {
         val recurringContributionIds: ImmutableList<String>
     }
 
+    /**
+     * Repository for managing contributions.
+     */
+    interface ContributionRepository {
+        /**
+         * Get all one-time contributions.
+         *
+         * @return Flow of list of one-time contributions.
+         */
+        fun getAllOneTime(): Flow<Outcome<List<OneTimeContribution>, ContributionError>>
+
+        /**
+         * Get all recurring contributions.
+         *
+         * @return Flow of list of recurring contributions.
+         */
+        fun getAllRecurring(): Flow<Outcome<List<RecurringContribution>, ContributionError>>
+
+        /**
+         * Get all purchased contributions.
+         *
+         * @return Flow of list of purchased contributions.
+         */
+        fun getAllPurchased(): Flow<Outcome<List<Contribution>, ContributionError>>
+    }
+
     interface ContributionManager {
         /**
          * Flow that emits the last purchased contribution.
          */
         val purchasedContribution: StateFlow<Outcome<Contribution?, ContributionError>>
-
-        /**
-         * Load contributions.
-         */
-        suspend fun loadOneTimeContributions(): Outcome<List<OneTimeContribution>, ContributionError>
-
-        /**
-         * Load recurring contributions.
-         */
-        suspend fun loadRecurringContributions(): Outcome<List<RecurringContribution>, ContributionError>
-
-        /**
-         * Load purchased contributions.
-         */
-        suspend fun loadPurchasedContributions(): Outcome<List<Contribution>, ContributionError>
 
         /**
          * Purchase a contribution.

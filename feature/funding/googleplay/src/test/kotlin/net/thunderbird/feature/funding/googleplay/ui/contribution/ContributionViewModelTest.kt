@@ -7,6 +7,7 @@ import app.k9mail.core.ui.compose.testing.mvi.turbinesWithInitialStateCheck
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
+import kotlinx.coroutines.flow.flowOf
 import net.thunderbird.core.outcome.Outcome
 import net.thunderbird.core.testing.coroutines.MainDispatcherRule
 import net.thunderbird.feature.funding.googleplay.domain.entity.AvailableContributions
@@ -96,14 +97,15 @@ private class ContributionRobot(
     private val mviContext: MviContext,
     private val initialState: State = State(),
 ) {
-    // FIX use case
     private val viewModel: ContributionContract.ViewModel = ContributionViewModel(
         getAvailableContributions = {
-            Outcome.success(
-                AvailableContributions(
-                    oneTimeContributions = FakeData.oneTimeContributions,
-                    recurringContributions = FakeData.recurringContributions,
-                    purchasedContribution = FakeData.oneTimeContributions.first(),
+            flowOf(
+                Outcome.success(
+                    AvailableContributions(
+                        oneTimeContributions = FakeData.oneTimeContributions,
+                        recurringContributions = FakeData.recurringContributions,
+                        purchasedContribution = FakeData.oneTimeContributions.first(),
+                    ),
                 ),
             )
         },
