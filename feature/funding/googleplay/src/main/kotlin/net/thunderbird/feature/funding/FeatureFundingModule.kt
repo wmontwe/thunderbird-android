@@ -4,12 +4,19 @@ import com.android.billingclient.api.ProductDetails
 import kotlin.time.ExperimentalTime
 import net.thunderbird.core.common.cache.Cache
 import net.thunderbird.core.common.cache.InMemoryCache
+import net.thunderbird.core.configstore.ConfigDefinition
+import net.thunderbird.core.configstore.ConfigMapper
+import net.thunderbird.core.configstore.ConfigStore
 import net.thunderbird.feature.funding.api.FundingManager
 import net.thunderbird.feature.funding.api.FundingNavigation
 import net.thunderbird.feature.funding.googleplay.GooglePlayFundingManager
 import net.thunderbird.feature.funding.googleplay.GooglePlayFundingNavigation
 import net.thunderbird.feature.funding.googleplay.data.FundingDataContract
 import net.thunderbird.feature.funding.googleplay.data.GoogleBillingClient
+import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfig
+import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfigDefinition
+import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfigMapper
+import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfigStore
 import net.thunderbird.feature.funding.googleplay.data.mapper.BillingResultMapper
 import net.thunderbird.feature.funding.googleplay.data.mapper.ProductDetailsMapper
 import net.thunderbird.feature.funding.googleplay.data.remote.GoogleBillingClientProvider
@@ -79,6 +86,25 @@ val featureFundingModule = module {
 
     single<Cache<String, ProductDetails>> {
         InMemoryCache()
+    }
+
+    single<ConfigMapper<ContributionConfig>> {
+        ContributionConfigMapper(
+            logger = get(),
+        )
+    }
+
+    single<ConfigDefinition<ContributionConfig>> {
+        ContributionConfigDefinition(
+            mapper = get(),
+        )
+    }
+
+    single<ConfigStore<ContributionConfig>> {
+        ContributionConfigStore(
+            provider = get(),
+            definition = get(),
+        )
     }
 
     single<FundingDataContract.Remote.GoogleBillingPurchaseHandler> {

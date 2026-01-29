@@ -11,9 +11,11 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.consumePurchase
 import net.thunderbird.core.common.cache.Cache
+import net.thunderbird.core.configstore.ConfigStore
 import net.thunderbird.core.logging.Logger
 import net.thunderbird.feature.funding.googleplay.data.FundingDataContract
 import net.thunderbird.feature.funding.googleplay.data.FundingDataContract.Remote
+import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfig
 import net.thunderbird.feature.funding.googleplay.domain.entity.Contribution
 import net.thunderbird.feature.funding.googleplay.domain.entity.OneTimeContribution
 import net.thunderbird.feature.funding.googleplay.domain.entity.RecurringContribution
@@ -22,6 +24,7 @@ import net.thunderbird.feature.funding.googleplay.domain.entity.RecurringContrib
 // TODO optimize purchase handling and reduce duplicate code
 @Suppress("TooManyFunctions")
 internal class GoogleBillingPurchaseHandler(
+    private val configStore: ConfigStore<ContributionConfig>,
     private val productCache: Cache<String, ProductDetails>,
     private val productMapper: FundingDataContract.Mapper.Product,
     private val logger: Logger,

@@ -11,10 +11,8 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesResult
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
-import com.android.billingclient.api.QueryPurchaseHistoryParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
-import com.android.billingclient.api.queryPurchaseHistory
 import com.android.billingclient.api.queryPurchasesAsync
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
@@ -147,16 +145,15 @@ internal class GoogleBillingClient(
     }
 
     override suspend fun loadPurchasedOneTimeContributionHistory(): Outcome<OneTimeContribution?, ContributionError> {
-        val queryPurchaseHistoryParams = QueryPurchaseHistoryParams.newBuilder()
+        val queryPurchasesParams = QueryPurchasesParams.newBuilder()
             .setProductType(ProductType.INAPP)
             .build()
 
-        val purchasesResult = clientProvider.current.queryPurchaseHistory(queryPurchaseHistoryParams)
+        val purchasesResult = clientProvider.current.queryPurchasesAsync(queryPurchasesParams)
         return resultMapper.mapToOutcome(purchasesResult.billingResult) {
-            val recentPurchaseId =
-                purchasesResult.purchaseHistoryRecordList.orEmpty().firstOrNull()?.products?.firstOrNull {
-                    productCache.hasKey(it)
-                }
+            val recentPurchaseId = purchasesResult.purchasesList.firstOrNull()?.products?.firstOrNull {
+                productCache.hasKey(it)
+            }
 
             if (recentPurchaseId != null) {
                 val recentPurchase = productCache[recentPurchaseId]
