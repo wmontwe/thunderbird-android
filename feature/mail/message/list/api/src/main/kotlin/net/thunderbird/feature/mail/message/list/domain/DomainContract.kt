@@ -11,7 +11,7 @@ import net.thunderbird.feature.mail.folder.api.RemoteFolder
 interface DomainContract {
     interface UseCase {
         fun interface GetAccountFolders {
-            suspend operator fun invoke(accountUuid: String): Outcome<List<RemoteFolder>, AccountFolderError>
+            suspend operator fun invoke(accountId: AccountId): Outcome<List<RemoteFolder>, AccountFolderError>
         }
 
         fun interface CreateArchiveFolder {

@@ -30,14 +30,14 @@ class AutoExpandFolderBackendFoldersRefreshListener(
             if (folderName.isEmpty()) {
                 account.autoExpandFolderId = null
             } else {
-                val folderId = folderRepository.getFolderId(account, folderName)
+                val folderId = folderRepository.getFolderId(account.id, folderName)
                 account.autoExpandFolderId = folderId
             }
             return
         }
 
         account.autoExpandFolderId?.let { autoExpandFolderId ->
-            if (!folderRepository.isFolderPresent(account, autoExpandFolderId)) {
+            if (!folderRepository.isFolderPresent(account.id, autoExpandFolderId)) {
                 account.autoExpandFolderId = null
             }
         }

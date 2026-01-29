@@ -86,7 +86,7 @@ class PushController internal constructor(
 
         coroutineScope.launch(coroutineDispatcher) {
             for (account in accountManager.getAccounts()) {
-                folderRepository.setPushDisabled(account)
+                folderRepository.setPushDisabled(account.id)
             }
         }
     }
@@ -253,7 +253,7 @@ class PushController internal constructor(
     private fun getPushAccounts(): Set<LegacyAccountDto> {
         return getPushCapableAccounts()
             .asSequence()
-            .filter { account -> folderRepository.hasPushEnabledFolder(account) }
+            .filter { account -> folderRepository.hasPushEnabledFolder(account.id) }
             .toSet()
     }
 
@@ -320,7 +320,7 @@ class PushController internal constructor(
             for (account in newAccounts) {
                 pushEnabledCollectorJobs[account.uuid] = coroutineScope.launch(coroutineDispatcher) {
                     Log.v("..Starting to listen for push enabled changes in account: %s", account.uuid)
-                    folderRepository.hasPushEnabledFolderFlow(account)
+                    folderRepository.hasPushEnabledFolderFlow(account.id)
                         .collect {
                             updatePushers()
                         }

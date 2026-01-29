@@ -12,6 +12,7 @@ import net.thunderbird.core.outcome.handle
 import net.thunderbird.core.outcome.handleAsync
 import net.thunderbird.core.preference.GeneralSettingsManager
 import net.thunderbird.core.preference.update
+import net.thunderbird.feature.account.AccountIdFactory
 import net.thunderbird.feature.mail.folder.api.RemoteFolder
 import net.thunderbird.feature.mail.message.list.domain.CreateArchiveFolderOutcome
 import net.thunderbird.feature.mail.message.list.domain.DomainContract
@@ -63,7 +64,7 @@ internal class SetupArchiveFolderDialogViewModel(
             is State.EmailCantBeArchived -> {
                 updateState { State.ChooseArchiveFolder(isLoadingFolders = true) }
                 viewModelScope.launch {
-                    getAccountFolders(accountUuid = accountUuid).handle(
+                    getAccountFolders(accountId = AccountIdFactory.of(accountUuid)).handle(
                         onSuccess = { folders ->
                             updateState {
                                 State.ChooseArchiveFolder(

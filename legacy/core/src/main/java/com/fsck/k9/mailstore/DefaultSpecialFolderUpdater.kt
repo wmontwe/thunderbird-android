@@ -21,7 +21,7 @@ class DefaultSpecialFolderUpdater private constructor(
     private val account: LegacyAccountDto,
 ) : SpecialFolderUpdater {
     override fun updateSpecialFolders() {
-        val folders = folderRepository.getRemoteFolders(account)
+        val folders = folderRepository.getRemoteFolders(account.id)
 
         updateInbox(folders)
 
@@ -45,14 +45,14 @@ class DefaultSpecialFolderUpdater private constructor(
         account.inboxFolderId = newInboxId
 
         if (oldInboxId != null && folders.any { it.id == oldInboxId }) {
-            folderRepository.setIncludeInUnifiedInbox(account, oldInboxId, false)
+            folderRepository.setIncludeInUnifiedInbox(account.id, oldInboxId, false)
         }
 
         if (newInboxId != null) {
-            folderRepository.setIncludeInUnifiedInbox(account, newInboxId, true)
-            folderRepository.setVisible(account, newInboxId, true)
-            folderRepository.setSyncEnabled(account, newInboxId, true)
-            folderRepository.setNotificationsEnabled(account, newInboxId, true)
+            folderRepository.setIncludeInUnifiedInbox(account.id, newInboxId, true)
+            folderRepository.setVisible(account.id, newInboxId, true)
+            folderRepository.setSyncEnabled(account.id, newInboxId, true)
+            folderRepository.setNotificationsEnabled(account.id, newInboxId, true)
         }
     }
 
@@ -120,7 +120,7 @@ class DefaultSpecialFolderUpdater private constructor(
         }
 
         if (folderId != null) {
-            folderRepository.setVisible(account, folderId, true)
+            folderRepository.setVisible(account.id, folderId, true)
         }
     }
 

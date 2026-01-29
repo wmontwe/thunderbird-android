@@ -17,6 +17,8 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.thunderbird.core.common.exception.MessagingException
 import net.thunderbird.core.outcome.Outcome
+import net.thunderbird.feature.account.AccountId
+import net.thunderbird.feature.account.AccountIdFactory
 import net.thunderbird.feature.mail.folder.api.FolderType
 import net.thunderbird.feature.mail.folder.api.RemoteFolder
 import net.thunderbird.feature.mail.message.list.domain.AccountFolderError
@@ -24,8 +26,8 @@ import org.mockito.Mockito.`when`
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 
-private const val VALID_ACCOUNT_UUID = "valid_account_uuid"
-private const val INVALID_ACCOUNT_UUID = "invalid_account_uuid"
+private val VALID_ACCOUNT_ID = AccountIdFactory.create()
+private val INVALID_ACCOUNT_ID = AccountIdFactory.create()
 
 @Suppress("MaxLineLength")
 class GetAccountFoldersTest {
@@ -33,7 +35,7 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should return REGULAR and ARCHIVE folders when repository returns a list of folders`() = runTest {
         // Arrange
-        val accountUuid = VALID_ACCOUNT_UUID
+        val accountId = VALID_ACCOUNT_ID
         val regularFoldersSize = 10
         val remoteFolders = createRemoteFolders(
             regularFoldersSize = regularFoldersSize,
@@ -44,10 +46,10 @@ class GetAccountFoldersTest {
             addArchiveFolder = true,
             addSpamFolder = true,
         )
-        val testSubject = createTestSubject(accountUuid, remoteFolders)
+        val testSubject = createTestSubject(accountId, remoteFolders)
 
         // Act
-        val folders = testSubject(accountUuid)
+        val folders = testSubject(accountId)
 
         // Assert
         assertThat(folders)
@@ -63,15 +65,15 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should return only REGULAR folders when repository returns only REGULAR folders`() = runTest {
         // Arrange
-        val accountUuid = VALID_ACCOUNT_UUID
+        val accountId = VALID_ACCOUNT_ID
         val regularFoldersSize = Random.nextInt(from = 1, until = 100)
         val remoteFolders = createRemoteFolders(
             regularFoldersSize = regularFoldersSize,
         )
-        val testSubject = createTestSubject(accountUuid, remoteFolders)
+        val testSubject = createTestSubject(accountId, remoteFolders)
 
         // Act
-        val folders = testSubject(accountUuid)
+        val folders = testSubject(accountId)
 
         // Assert
         assertThat(folders)
@@ -87,15 +89,15 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should return only ARCHIVE folder when repository returns only ARCHIVE folder`() = runTest {
         // Arrange
-        val accountUuid = VALID_ACCOUNT_UUID
+        val accountId = VALID_ACCOUNT_ID
         val remoteFolders = createRemoteFolders(
             regularFoldersSize = 0,
             addArchiveFolder = true,
         )
-        val testSubject = createTestSubject(accountUuid, remoteFolders)
+        val testSubject = createTestSubject(accountId, remoteFolders)
 
         // Act
-        val folders = testSubject(accountUuid)
+        val folders = testSubject(accountId)
 
         // Assert
         assertThat(folders)
@@ -111,7 +113,7 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should return an empty list when repository returns no REGULAR or ARCHIVE folders`() = runTest {
         // Arrange
-        val accountUuid = VALID_ACCOUNT_UUID
+        val accountId = VALID_ACCOUNT_ID
         val remoteFolders = createRemoteFolders(
             regularFoldersSize = 0,
             addInboxFolder = true,
@@ -121,10 +123,10 @@ class GetAccountFoldersTest {
             addArchiveFolder = false,
             addSpamFolder = true,
         )
-        val testSubject = createTestSubject(accountUuid, remoteFolders)
+        val testSubject = createTestSubject(accountId, remoteFolders)
 
         // Act
-        val folders = testSubject(accountUuid)
+        val folders = testSubject(accountId)
 
         // Assert
         assertThat(folders)
@@ -136,18 +138,18 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should return failure when repository throws MessagingException`() = runTest {
         // Arrange
-        val accountUuid = VALID_ACCOUNT_UUID
+        val accountId = VALID_ACCOUNT_ID
         val errorMessage = "this is an error"
         val messagingException = MessagingException(errorMessage)
         val remoteFolders = listOf<RemoteFolder>()
         val testSubject = createTestSubject(
-            accountUuid = accountUuid,
+            accountId = accountId,
             folders = remoteFolders,
             exception = messagingException,
         )
 
         // Act
-        val folders = testSubject(accountUuid)
+        val folders = testSubject(accountId)
 
         // Assert
         assertThat(folders)
@@ -161,18 +163,18 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should propagate exception when repository throws other types of exceptions`() = runTest {
         // Arrange
-        val accountUuid = VALID_ACCOUNT_UUID
+        val accountId = VALID_ACCOUNT_ID
         val errorMessage = "not handled exception"
         val messagingException = RuntimeException(errorMessage)
         val remoteFolders = listOf<RemoteFolder>()
         val testSubject = createTestSubject(
-            accountUuid = accountUuid,
+            accountId = accountId,
             folders = remoteFolders,
             exception = messagingException,
         )
 
         // Act & Assert
-        assertFailure { testSubject(accountUuid) }
+        assertFailure { testSubject(accountId) }
             .isInstanceOf<RuntimeException>()
             .hasMessage(errorMessage)
     }
@@ -180,7 +182,7 @@ class GetAccountFoldersTest {
     @Test
     fun `invoke should handle invalid or non-existent account UUID`() = runTest {
         // Arrange
-        val accountUuid = INVALID_ACCOUNT_UUID
+        val accountId = INVALID_ACCOUNT_ID
         val remoteFolders = createRemoteFolders(
             regularFoldersSize = 100,
             addInboxFolder = true,
@@ -190,10 +192,10 @@ class GetAccountFoldersTest {
             addArchiveFolder = true,
             addSpamFolder = true,
         )
-        val testSubject = createTestSubject(accountUuid, remoteFolders)
+        val testSubject = createTestSubject(accountId, remoteFolders)
 
         // Act
-        val folders = testSubject(accountUuid)
+        val folders = testSubject(accountId)
 
         // Assert
         assertThat(folders)
@@ -249,24 +251,24 @@ class GetAccountFoldersTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun createTestSubject(
-        accountUuid: String,
+        accountId: AccountId,
         folders: List<RemoteFolder>,
         exception: Exception? = null,
     ): GetAccountFolders {
         val folderRepository = mock<FolderRepository>()
         when {
             exception != null -> {
-                `when`(folderRepository.getRemoteFolders(eq(accountUuid)))
+                `when`(folderRepository.getRemoteFolders(eq(accountId)))
                     .thenThrow(exception)
             }
 
-            accountUuid == VALID_ACCOUNT_UUID -> {
-                `when`(folderRepository.getRemoteFolders(eq(accountUuid)))
+            accountId == VALID_ACCOUNT_ID -> {
+                `when`(folderRepository.getRemoteFolders(eq(accountId)))
                     .thenReturn(folders)
             }
 
-            accountUuid == INVALID_ACCOUNT_UUID ->
-                `when`(folderRepository.getRemoteFolders(eq(accountUuid)))
+            accountId == INVALID_ACCOUNT_ID ->
+                `when`(folderRepository.getRemoteFolders(eq(accountId)))
                     .thenReturn(emptyList())
         }
         return GetAccountFolders(folderRepository, ioDispatcher = UnconfinedTestDispatcher())

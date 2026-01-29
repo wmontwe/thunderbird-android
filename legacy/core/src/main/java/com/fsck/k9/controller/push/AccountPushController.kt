@@ -93,6 +93,6 @@ internal class AccountPushController(
     }
 
     private fun disablePush() {
-        folderRepository.setPushDisabled(account)
+        folderRepository.setPushDisabled(account.id)
     }
 }
