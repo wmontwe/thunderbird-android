@@ -11,6 +11,7 @@ kotlin {
         commonMain.dependencies {
             api(libs.uri)
             api(projects.core.outcome)
+            api(projects.core.types)
 
             implementation(libs.kotlinx.io.core)
         }

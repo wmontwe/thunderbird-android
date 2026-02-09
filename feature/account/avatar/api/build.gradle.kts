@@ -10,6 +10,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.feature.account.api)
+            api(projects.core.types)
             api(libs.uri)
         }
     }

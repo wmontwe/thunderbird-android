@@ -1,6 +1,7 @@
 package net.thunderbird.core.file
 
 import com.eygraber.uri.Uri
+import net.thunderbird.core.types.MimeType
 
 /**
  * Resolver for MIME types.

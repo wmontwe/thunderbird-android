@@ -5,7 +5,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import net.thunderbird.core.file.DirectoryProvider
 import net.thunderbird.core.file.FileManager
-import net.thunderbird.core.file.MimeType
+import net.thunderbird.core.types.MimeType
 import net.thunderbird.core.file.MimeTypeResolver
 import net.thunderbird.feature.account.AccountId
 import net.thunderbird.feature.account.avatar.data.AvatarDataContract.DataSource.LocalAvatarImage
@@ -21,7 +21,6 @@ import net.thunderbird.feature.account.avatar.data.AvatarDataContract.DataSource
  * @param mimeTypeResolver The [MimeTypeResolver] to determine image formats.
  * @param clock The [Clock] used for cache invalidation.
  */
-
 @OptIn(ExperimentalTime::class)
 internal class LocalAvatarImageDataSource(
     private val fileManager: FileManager,

@@ -1,8 +1,8 @@
 package net.thunderbird.feature.account.settings.impl.domain.usecase
 
 import com.eygraber.uri.Uri
-import net.thunderbird.core.file.MimeType
 import net.thunderbird.core.file.MimeTypeResolver
+import net.thunderbird.core.types.MimeType
 
 class FakeMimeTypeResolver(
     private val mimeTypeMap: Map<Uri, MimeType?> = emptyMap(),

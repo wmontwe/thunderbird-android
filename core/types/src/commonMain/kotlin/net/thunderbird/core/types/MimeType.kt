@@ -1,4 +1,4 @@
-package net.thunderbird.core.file
+package net.thunderbird.core.types
 
 /**
  * MIME type representation.

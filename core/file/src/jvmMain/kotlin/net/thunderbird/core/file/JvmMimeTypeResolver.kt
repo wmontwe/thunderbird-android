@@ -5,6 +5,7 @@ import com.eygraber.uri.toURI
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import net.thunderbird.core.types.MimeType
 
 class JvmMimeTypeResolver : MimeTypeResolver {
 

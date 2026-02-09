@@ -17,6 +17,7 @@ import net.thunderbird.core.file.MimeType
 import net.thunderbird.core.file.MimeTypeResolver
 import net.thunderbird.core.outcome.Outcome
 import net.thunderbird.core.testing.TestClock
+import net.thunderbird.core.types.MimeType
 import net.thunderbird.feature.account.AccountIdFactory
 import net.thunderbird.feature.account.avatar.data.AvatarDataContract
 import org.junit.Rule

@@ -1,6 +1,7 @@
 package net.thunderbird.core.file
 
 import com.eygraber.uri.Uri
+import net.thunderbird.core.types.MimeType
 
 class AndroidMimeTypeResolver(
     private val mimeTypeProvider: AndroidMimeTypeProvider,
