@@ -52,6 +52,18 @@ internal interface FundingDataContract {
     }
 
     interface Remote {
+        interface ContributionDataSource {
+            fun getAllOneTime(
+                productIds: List<String>,
+            ): Flow<Outcome<List<OneTimeContribution>, ContributionError>>
+
+            fun getAllRecurring(
+                productIds: List<String>,
+            ): Flow<Outcome<List<RecurringContribution>, ContributionError>>
+
+            fun getAllPurchased(): Flow<Outcome<List<Contribution>, ContributionError>>
+        }
+
         interface BillingClientProvider {
             val current: GoogleBillingClient
 

@@ -14,10 +14,6 @@ internal class FakeContributionManager : FundingDomainContract.ContributionManag
         Outcome.success(null),
     )
 
-    override suspend fun loadOneTimeContributions() = Outcome.success(FakeData.oneTimeContributions)
-
-    override suspend fun loadRecurringContributions() = Outcome.success(FakeData.recurringContributions)
-
     override suspend fun loadPurchasedContributions(): Outcome<List<Contribution>, ContributionError> {
         return Outcome.success(
             listOf(
