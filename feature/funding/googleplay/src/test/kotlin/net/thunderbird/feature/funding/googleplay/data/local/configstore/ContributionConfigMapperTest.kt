@@ -2,9 +2,9 @@ package net.thunderbird.feature.funding.googleplay.data.local.configstore
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNull
-import assertk.assertions.isNotNull
 import assertk.assertions.isGreaterThan
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import net.thunderbird.core.configstore.Config
 import net.thunderbird.core.logging.LogLevel
 import net.thunderbird.core.logging.testing.TestLogger
@@ -34,9 +34,11 @@ class ContributionConfigMapperTest {
         val storedJson = result[ContributionConfigKeys.LAST_PURCHASED_CONTRIBUTION]
         assertThat(storedJson).isNotNull()
 
-        val roundTripped = mapper.fromConfig(Config().apply {
-            set(ContributionConfigKeys.LAST_PURCHASED_CONTRIBUTION, storedJson!!)
-        })
+        val roundTripped = mapper.fromConfig(
+            Config().apply {
+                set(ContributionConfigKeys.LAST_PURCHASED_CONTRIBUTION, storedJson!!)
+            },
+        )
         assertThat(roundTripped?.lastPurchasedContribution).isEqualTo(purchase)
     }
 

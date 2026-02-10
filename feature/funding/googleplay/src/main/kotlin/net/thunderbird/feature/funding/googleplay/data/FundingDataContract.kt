@@ -4,6 +4,7 @@ import android.app.Activity
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import net.thunderbird.core.configstore.ConfigDefinition
 import net.thunderbird.core.configstore.ConfigMapper
@@ -26,8 +27,13 @@ internal interface FundingDataContract {
         interface ContributionConfigDefinition : ConfigDefinition<ContributionConfig>
         interface ContributionConfigMigration : ConfigMigration
         interface ContributionConfigStore : ConfigStore<ContributionConfig>
-    }
 
+        interface ContributionPurchaseDataSource {
+            fun get(): Flow<Outcome<ContributionPurchase?, ContributionError>>
+
+            suspend fun update(purchase: ContributionPurchase): Outcome<Unit, ContributionError>
+        }
+    }
 
     interface Mapper {
         interface Product {

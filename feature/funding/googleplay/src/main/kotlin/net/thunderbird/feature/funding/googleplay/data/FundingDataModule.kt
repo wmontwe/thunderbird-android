@@ -1,5 +1,7 @@
 package net.thunderbird.feature.funding.googleplay.data
 
+import net.thunderbird.feature.funding.googleplay.data.FundingDataContract.Local
+import net.thunderbird.feature.funding.googleplay.data.local.LocalContributionPurchaseDataSource
 import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfigDefinition
 import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfigMapper
 import net.thunderbird.feature.funding.googleplay.data.local.configstore.ContributionConfigMigration
@@ -27,6 +29,12 @@ internal val fundingDataModule = module {
         ContributionConfigStore(
             provider = get(),
             definition = get(),
+        )
+    }
+
+    single<Local.ContributionPurchaseDataSource> {
+        LocalContributionPurchaseDataSource(
+            configStore = get(),
         )
     }
 }
