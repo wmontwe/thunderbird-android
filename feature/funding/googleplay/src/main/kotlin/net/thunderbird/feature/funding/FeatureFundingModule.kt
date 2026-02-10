@@ -10,6 +10,7 @@ import net.thunderbird.feature.funding.googleplay.GooglePlayFundingManager
 import net.thunderbird.feature.funding.googleplay.GooglePlayFundingNavigation
 import net.thunderbird.feature.funding.googleplay.data.FundingDataContract
 import net.thunderbird.feature.funding.googleplay.data.GoogleBillingClient
+import net.thunderbird.feature.funding.googleplay.data.fundingDataModule
 import net.thunderbird.feature.funding.googleplay.data.mapper.BillingResultMapper
 import net.thunderbird.feature.funding.googleplay.data.mapper.ProductDetailsMapper
 import net.thunderbird.feature.funding.googleplay.data.remote.GoogleBillingClientProvider
@@ -28,6 +29,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val featureFundingModule = module {
+    includes(fundingDataModule)
+
     single<FundingReminderContract.Dialog> {
         FundingReminderDialog()
     }

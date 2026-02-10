@@ -20,12 +20,15 @@ dependencies {
     implementation(projects.core.outcome)
     implementation(projects.core.logging.api)
     implementation(projects.core.ui.compose.designsystem)
+    implementation(projects.core.configstore.api)
 
     implementation(libs.android.billing)
     implementation(libs.android.billing.ktx)
     implementation(libs.android.material)
 
     testImplementation(projects.core.testing)
+    testImplementation(projects.core.configstore.testing)
+    testImplementation(projects.core.logging.testing)
     testImplementation(projects.core.ui.compose.testing)
 
     testImplementation(libs.androidx.lifecycle.runtime.testing)
