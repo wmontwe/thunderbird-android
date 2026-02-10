@@ -1,20 +1,11 @@
 package net.thunderbird.feature.funding
 
-import com.android.billingclient.api.ProductDetails
 import kotlin.time.ExperimentalTime
-import net.thunderbird.core.common.cache.Cache
-import net.thunderbird.core.common.cache.InMemoryCache
 import net.thunderbird.feature.funding.api.FundingManager
 import net.thunderbird.feature.funding.api.FundingNavigation
 import net.thunderbird.feature.funding.googleplay.GooglePlayFundingManager
 import net.thunderbird.feature.funding.googleplay.GooglePlayFundingNavigation
-import net.thunderbird.feature.funding.googleplay.data.FundingDataContract
-import net.thunderbird.feature.funding.googleplay.data.GoogleBillingClient
 import net.thunderbird.feature.funding.googleplay.data.fundingDataModule
-import net.thunderbird.feature.funding.googleplay.data.mapper.BillingResultMapper
-import net.thunderbird.feature.funding.googleplay.data.mapper.ProductDetailsMapper
-import net.thunderbird.feature.funding.googleplay.data.remote.GoogleBillingClientProvider
-import net.thunderbird.feature.funding.googleplay.data.remote.GoogleBillingPurchaseHandler
 import net.thunderbird.feature.funding.googleplay.domain.ContributionIdProvider
 import net.thunderbird.feature.funding.googleplay.domain.ContributionManager
 import net.thunderbird.feature.funding.googleplay.domain.FundingDomainContract
@@ -65,43 +56,6 @@ val featureFundingModule = module {
     }
 
     single<FundingNavigation> { GooglePlayFundingNavigation() }
-
-    single<FundingDataContract.Mapper.Product> {
-        ProductDetailsMapper()
-    }
-
-    single<FundingDataContract.Mapper.BillingResult> {
-        BillingResultMapper()
-    }
-
-    single<FundingDataContract.Remote.GoogleBillingClientProvider> {
-        GoogleBillingClientProvider(
-            context = get(),
-        )
-    }
-
-    single<Cache<String, ProductDetails>> {
-        InMemoryCache()
-    }
-
-    single<FundingDataContract.Remote.GoogleBillingPurchaseHandler> {
-        GoogleBillingPurchaseHandler(
-            productCache = get(),
-            productMapper = get(),
-            logger = get(),
-        )
-    }
-
-    single<FundingDataContract.BillingClient> {
-        GoogleBillingClient(
-            clientProvider = get(),
-            productMapper = get(),
-            resultMapper = get(),
-            productCache = get(),
-            purchaseHandler = get(),
-            logger = get(),
-        )
-    }
 
     single<FundingDomainContract.ContributionIdProvider> {
         ContributionIdProvider()
