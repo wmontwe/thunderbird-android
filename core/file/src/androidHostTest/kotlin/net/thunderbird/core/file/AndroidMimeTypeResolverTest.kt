@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.eygraber.uri.Uri
+import net.thunderbird.core.types.MimeType
 import org.junit.Test
 
 class AndroidMimeTypeResolverTest {
@@ -14,7 +15,7 @@ class AndroidMimeTypeResolverTest {
         val imageUri = Uri.parse("content://com.android.providers.media.documents/document/image:12345")
         val provider = FakeMimeTypeProvider(
             mapOf(
-                imageUri to "image/jpeg",
+                imageUri to MimeType.JPEG.value,
             ),
         )
         val testSubject = AndroidMimeTypeResolver(provider)
@@ -32,7 +33,7 @@ class AndroidMimeTypeResolverTest {
         val fileUri = Uri.parse("file:///storage/emulated/0/Download/document.pdf")
         val provider = FakeMimeTypeProvider(
             mapOf(
-                fileUri to "application/pdf",
+                fileUri to MimeType.PDF.value,
             ),
         )
         val testSubject = AndroidMimeTypeResolver(provider)
@@ -51,13 +52,15 @@ class AndroidMimeTypeResolverTest {
         val jpegUri = Uri.parse("content://com.example.images/photo.jpeg")
         val pngUri = Uri.parse("content://com.example.images/image.png")
         val pdfUri = Uri.parse("content://com.example.documents/doc.pdf")
+        val imageJpgTagUri = Uri.parse("content://com.example.images/photo_tag.jpg")
 
         val provider = FakeMimeTypeProvider(
             mapOf(
-                jpgUri to "image/jpeg",
-                jpegUri to "image/jpeg",
-                pngUri to "image/png",
-                pdfUri to "application/pdf",
+                jpgUri to MimeType.JPEG.value,
+                jpegUri to MimeType.JPEG.value,
+                pngUri to MimeType.PNG.value,
+                pdfUri to MimeType.PDF.value,
+                imageJpgTagUri to "image/jpg",
             ),
         )
         val testSubject = AndroidMimeTypeResolver(provider)
@@ -67,6 +70,7 @@ class AndroidMimeTypeResolverTest {
         assertThat(testSubject.getMimeType(jpegUri)).isEqualTo(MimeType.JPEG)
         assertThat(testSubject.getMimeType(pngUri)).isEqualTo(MimeType.PNG)
         assertThat(testSubject.getMimeType(pdfUri)).isEqualTo(MimeType.PDF)
+        assertThat(testSubject.getMimeType(imageJpgTagUri)).isEqualTo(MimeType.JPEG)
     }
 
     @Test

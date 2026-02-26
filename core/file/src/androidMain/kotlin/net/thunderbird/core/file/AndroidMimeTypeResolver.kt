@@ -8,11 +8,18 @@ class AndroidMimeTypeResolver(
 ) : MimeTypeResolver {
 
     override fun getMimeType(uri: Uri): MimeType? {
-        return when (mimeTypeProvider.getType(uri)) {
-            "image/jpeg" -> MimeType.JPEG
-            "image/png" -> MimeType.PNG
-            "application/pdf" -> MimeType.PDF
-            else -> null
-        }
+        return MimeType.fromValue(mimeTypeProvider.getType(uri))
+    }
+
+    override fun getMimeType(filename: String): MimeType {
+        TODO("Not yet implemented")
+    }
+
+    override fun getExtension(mimeType: MimeType): Set<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPreferredExtension(mimeType: MimeType): String? {
+        TODO("Not yet implemented")
     }
 }

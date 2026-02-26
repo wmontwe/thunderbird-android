@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.eygraber.uri.Uri
+import net.thunderbird.core.types.MimeType
 import org.junit.Test
 
 class JvmMimeTypeResolverTest {

@@ -10,21 +10,16 @@ import net.thunderbird.core.types.MimeType
 class JvmMimeTypeResolver : MimeTypeResolver {
 
     override fun getMimeType(uri: Uri): MimeType? {
-        return try {
-            getMimeTypeFromContentType(uri)
-        } catch (_: Exception) {
-            getMimeTypeFromExtension(uri)
-        }
+        return getMimeTypeFromContentType(uri) ?: getMimeTypeFromExtension(uri)
     }
 
     private fun getMimeTypeFromContentType(uri: Uri): MimeType? {
-        val path = Paths.get(uri.toURI())
-        val extension = Files.probeContentType(path)
-        return when (extension) {
-            "image/jpeg" -> MimeType.JPEG
-            "image/png" -> MimeType.PNG
-            "application/pdf" -> MimeType.PDF
-            else -> null
+        return try {
+            val path = Paths.get(uri.toURI())
+            val contentType = Files.probeContentType(path)
+            MimeType.fromValue(contentType)
+        } catch (_: Exception) {
+            null
         }
     }
 
