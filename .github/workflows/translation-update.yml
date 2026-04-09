@@ -1,0 +1,102 @@
+name: Translation - Update
+description: Update translations from Weblate
+
+on:
+    schedule:
+        - cron: '0 0 * * 3' # every Wednesday at 00:00 UTC
+    workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+    group: translation-update
+    cancel-in-progress: true
+
+jobs:
+    translations-update:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout the repo
+          uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+          with:
+            fetch-depth: 0
+
+        - name: Download translations from Weblate
+          run: |
+            curl --fail --silent --show-error --location \
+              --output translations.zip \
+              "https://hosted.weblate.org/download/thunderbird/app-tfa/?format=zip"
+
+        - name: Unpack translations
+          run: |
+            mkdir -p .tmp_translations
+            unzip -q -o translations.zip -d .tmp_translations
+
+        - name: Sync translations
+          run: |
+            cp -av .tmp_translations/thunderbird/app-tfa/app-common/* .
+
+        - name: Cleanup
+          run : |
+            rm -rf .tmp_translations
+            rm translations.zip
+
+        - name: Stage changes
+          run: git add -A
+
+        - name: Check for changes
+          id: changes
+          run: |
+            git status --porcelain
+
+            if git diff --cached --quiet --exit-code; then
+              echo "No changes detected"
+              echo "changes=false" >> $GITHUB_OUTPUT
+            else
+              echo "Changes detected"
+              echo "changes=true" >> $GITHUB_OUTPUT
+            fi
+
+        - name: Configure git user
+          if: steps.changes.outputs.changes == 'true'
+          run: |
+            git config user.name "Hosted Weblate"
+            git config user.email "hosted@weblate.org"
+
+        - name: Create or update pull request
+          if: steps.changes.outputs.changes == 'true'
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            BRANCH_NAME: weblate/update-translations
+            BASE_BRANCH: main
+            PR_TITLE: "chore(i18n): translations update from Weblate"
+            COMMIT_MESSAGE: "chore(i18n): update translations (Weblate)"
+            BODY: "Automated translation update from [Weblate](https://hosted.weblate.org) for [Thunderbird Mobile - App TfA](https://hosted.weblate.org/projects/thunderbird/app-tfa/app-common/). If you want to contribute to translations, please visit the project on Weblate."
+          run: |
+            git checkout -B $BRANCH_NAME
+            git commit -m "$COMMIT_MESSAGE"
+            git push --force-with-lease origin $BRANCH_NAME
+
+            PR_NUMBER="$(gh pr list \
+            --head "$BRANCH_NAME" \
+            --base "$BASE_BRANCH" \
+            --state open \
+            --json number \
+            --jq '.[0].number')"
+
+            if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+              gh pr edit "$PR_NUMBER" \
+                --title "$PR_TITLE" \
+                --body "$BODY"
+            else
+              gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$BRANCH_NAME" \
+              --title "$PR_TITLE" \
+              --body "$BODY" \
+              --label "type: translation" \
+              --label "report: include"
+            fi
