@@ -1,0 +1,121 @@
+name: Translation - Update 2
+
+on:
+  schedule:
+    - cron: '0 0 * * 3' # every Wednesday at 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: translation-update2
+  cancel-in-progress: true
+
+jobs:
+  translations-update2:
+    runs-on: ubuntu-latest
+
+    env:
+      BRANCH_NAME: weblate/update-translations
+      BASE_BRANCH: main
+      PR_TITLE: "chore(i18n): translations update from Weblate"
+      COMMIT_MESSAGE: "chore(i18n): update translations (Weblate)"
+      PR_BODY: |
+        Automated translation update from [Weblate](https://hosted.weblate.org) for [Thunderbird Mobile - App TfA](https://hosted.weblate.org/projects/thunderbird/app-tfa/app-common/).
+
+        This PR is generated from Weblate's Git export and squashed into one commit while preserving contributor attribution via `Co-authored-by` trailers.
+      WEBLATE_REMOTE: "https://hosted.weblate.org/git/thunderbird/app-tfa/app-common/"
+      WEBLATE_BRANCH: main
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git user
+        run: |
+          git config user.name "Hosted Weblate"
+          git config user.email "hosted@weblate.org"
+
+      - name: Add Weblate remote
+        run: |
+          git remote remove weblate 2>/dev/null || true
+          git remote add weblate "$WEBLATE_REMOTE"
+          git fetch origin "$BASE_BRANCH"
+          git fetch weblate
+
+      - name: Prepare sync branch
+        run: |
+          git checkout -B "$BRANCH_NAME" "origin/$BASE_BRANCH"
+
+      - name: Check for incoming changes
+        id: changes
+        run: |
+          if git log --oneline "origin/$BASE_BRANCH..weblate/$WEBLATE_BRANCH" | grep -q .; then
+            echo "Changes detected"
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes detected"
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build co-author trailers
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git log --format='%aN <%aE>' "origin/$BASE_BRANCH..weblate/$WEBLATE_BRANCH" \
+            | sort -u \
+            | sed 's/^/Co-authored-by: /' > .git/weblate-coauthors.txt
+
+      - name: Squash Weblate changes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git merge --squash "weblate/$WEBLATE_BRANCH"
+
+          if git diff --cached --quiet; then
+            echo "No staged changes after squash"
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            printf '%s\n\n' "$COMMIT_MESSAGE"
+            cat .git/weblate-coauthors.txt
+          } > .git/commit-message.txt
+
+          git commit -F .git/commit-message.txt
+
+      - name: Push branch
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git push --force-with-lease origin "$BRANCH_NAME"
+
+      - name: Create or update pull request
+        if: steps.changes.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="$(gh pr list \
+          --head "$BRANCH_NAME" \
+          --base "$BASE_BRANCH" \
+          --state open \
+          --json number \
+          --jq '.[0].number')"
+
+          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+            gh pr edit "$PR_NUMBER" \
+              --title "$PR_TITLE" \
+              --body "$BODY" \
+              --label "type: translation" \
+              --label "report: include"
+          else
+            gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$BRANCH_NAME" \
+            --title "$PR_TITLE" \
+            --body "$BODY" \
+            --label "type: translation" \
+            --label "report: include"
+          fi
