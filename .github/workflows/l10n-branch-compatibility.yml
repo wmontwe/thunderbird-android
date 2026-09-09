@@ -1,0 +1,120 @@
+---
+name: l10n - Branch Compatibility
+
+on:
+  pull_request:
+    branches:
+      - main
+      - beta
+      - release
+  workflow_dispatch:
+    inputs:
+      baseRef:
+        description: Base ref to compare against
+        required: true
+        default: origin/beta
+      upstreamRef:
+        description: Closest upstream localization source ref
+        required: false
+        default: ''
+      downstreamRefs:
+        description: Space-separated downstream refs to keep compatible
+        required: false
+        default: ''
+      allowTypoFix:
+        description: Allow structurally compatible existing-key text changes
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  l10n-branch-compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup Gradle environment
+        uses: ./.github/actions/setup-gradle
+
+      - name: Fetch release train refs
+        run: |
+          set -euo pipefail
+
+          for branch in main beta release; do
+            git fetch origin "+refs/heads/$branch:refs/remotes/origin/$branch" || true
+          done
+
+      - name: Determine refs
+        id: refs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          INPUT_BASE_REF: ${{ inputs.baseRef }}
+          INPUT_UPSTREAM_REF: ${{ inputs.upstreamRef }}
+          INPUT_DOWNSTREAM_REFS: ${{ inputs.downstreamRefs }}
+          INPUT_ALLOW_TYPO_FIX: ${{ inputs.allowTypoFix }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "base_ref=$INPUT_BASE_REF" >> "$GITHUB_OUTPUT"
+            echo "upstream_ref=$INPUT_UPSTREAM_REF" >> "$GITHUB_OUTPUT"
+            echo "downstream_refs=$INPUT_DOWNSTREAM_REFS" >> "$GITHUB_OUTPUT"
+            echo "allow_typo_fix=$INPUT_ALLOW_TYPO_FIX" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          case "$BASE_REF" in
+            main)
+              echo "base_ref=origin/main" >> "$GITHUB_OUTPUT"
+              echo "upstream_ref=" >> "$GITHUB_OUTPUT"
+              echo "downstream_refs=origin/beta origin/release" >> "$GITHUB_OUTPUT"
+              echo "allow_typo_fix=${{ contains(github.event.pull_request.labels.*.name, 'l10n-typo-fix') }}" >> "$GITHUB_OUTPUT"
+              ;;
+            beta)
+              echo "base_ref=origin/beta" >> "$GITHUB_OUTPUT"
+              echo "upstream_ref=origin/main" >> "$GITHUB_OUTPUT"
+              echo "downstream_refs=" >> "$GITHUB_OUTPUT"
+              echo "allow_typo_fix=${{ contains(github.event.pull_request.labels.*.name, 'l10n-typo-fix') }}" >> "$GITHUB_OUTPUT"
+              ;;
+            release)
+              echo "base_ref=origin/release" >> "$GITHUB_OUTPUT"
+              echo "upstream_ref=origin/beta" >> "$GITHUB_OUTPUT"
+              echo "downstream_refs=" >> "$GITHUB_OUTPUT"
+              echo "allow_typo_fix=${{ contains(github.event.pull_request.labels.*.name, 'l10n-typo-fix') }}" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported base branch: $BASE_REF" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Check l10n source compatibility
+        env:
+          BASE_REF: ${{ steps.refs.outputs.base_ref }}
+          UPSTREAM_REF: ${{ steps.refs.outputs.upstream_ref }}
+          DOWNSTREAM_REFS: ${{ steps.refs.outputs.downstream_refs }}
+          ALLOW_TYPO_FIX: ${{ steps.refs.outputs.allow_typo_fix }}
+        run: |
+          set -euo pipefail
+
+          args=(--base-ref "$BASE_REF")
+
+          if [ "$ALLOW_TYPO_FIX" = "true" ]; then
+            args+=(--allow-typo-fix)
+          fi
+
+          if [ -n "$UPSTREAM_REF" ]; then
+            args+=(--upstream-ref "$UPSTREAM_REF")
+          fi
+
+          for ref in $DOWNSTREAM_REFS; do
+            args+=(--downstream-ref "$ref")
+          done
+
+          ./scripts/l10n check-branch-compatibility "${args[@]}"

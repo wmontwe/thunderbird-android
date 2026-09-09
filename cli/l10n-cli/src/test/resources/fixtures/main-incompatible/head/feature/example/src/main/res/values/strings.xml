@@ -1,0 +1,7 @@
+<resources>
+    <string name="placeholder">Value %d</string>
+    <string name="label">Changed text</string>
+    <plurals name="messages">
+        <item quantity="other">%d messages</item>
+    </plurals>
+</resources>

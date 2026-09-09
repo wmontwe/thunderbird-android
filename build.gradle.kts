@@ -39,6 +39,7 @@ tasks.register("buildCliTools") {
     dependsOn(
         ":cli:autodiscovery-cli:build",
         ":cli:html-cleaner-cli:build",
+        ":cli:l10n-cli:build",
         ":cli:resource-mover-cli:build",
         ":cli:translation-cli:build",
         ":cli:weblate-cli:build",

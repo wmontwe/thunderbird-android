@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./gradlew --quiet ":cli:l10n-cli:installDist" < /dev/null && ./cli/l10n-cli/build/install/l10n-cli/bin/l10n-cli "$@"

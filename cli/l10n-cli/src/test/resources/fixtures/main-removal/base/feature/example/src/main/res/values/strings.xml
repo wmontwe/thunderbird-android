@@ -1,0 +1,4 @@
+<resources>
+    <string name="removed">Old value</string>
+    <string name="unchanged">Unchanged</string>
+</resources>

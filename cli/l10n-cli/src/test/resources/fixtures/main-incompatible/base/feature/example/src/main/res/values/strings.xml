@@ -1,0 +1,8 @@
+<resources>
+    <string name="placeholder">Value %s</string>
+    <string name="label">Original text</string>
+    <plurals name="messages">
+        <item quantity="one">One message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
+</resources>
