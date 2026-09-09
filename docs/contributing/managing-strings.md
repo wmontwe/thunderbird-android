@@ -13,7 +13,7 @@ Thunderbird for Android project.
 * We use [Compose Multiplatform Resources](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-multiplatform-resources.html) for localizing strings in Kotlin Multiplatform (KMP) modules.
 * **Source language** is **English** (American English, represented as `en`).
 * **Source strings** are modified only in this repository (via pull requests).
-* **Translations** are managed exclusively in [Weblate](https://hosted.weblate.org/projects/thunderbird/thunderbird-android/) and merged into the repository via the [Translation - Update](https://github.com/thunderbird/thunderbird-android/actions/workflows/translation-update.yml) workflow.
+* **Translations** are managed exclusively in [Weblate](https://hosted.weblate.org/projects/thunderbird/thunderbird-android/), stored in the [Thunderbird for Android l10n repository](https://github.com/thunderbird/thunderbird-android-l10n), and imported via the [Translation - Update](https://github.com/thunderbird/thunderbird-android/actions/workflows/l10n-translation-update.yml) workflow.
 * **Languages** are added/removed when they reach 70% translation or fall below 60%.
 
 ## 🔄 Changing Source Strings
@@ -73,7 +73,7 @@ If a **mechanical or global change** to translations is required (for example, r
 2. **Commit outstanding changes:**
    Ensure all pending translations in Weblate are committed to its internal Git repository.
 3. **Pull latest translations:**
-   Trigger the [Translation - Update](https://github.com/thunderbird/thunderbird-android/actions/workflows/translation-update.yml) GitHub workflow manually using `workflow_dispatch`.
+   Trigger the [Translation - Update](https://github.com/thunderbird/thunderbird-android/actions/workflows/l10n-translation-update.yml) GitHub workflow manually using `workflow_dispatch`.
 4. **Merge the pull request:**
    Review and merge the resulting PR to ensure your local `main` branch is in sync with Weblate.
 5. **Apply your change:**
@@ -177,10 +177,10 @@ val messagesCount = getPluralString(Res.plurals.new_messages, count, count)
 
 ## 🔀 Merging Translations
 
-Translations are merged from Weblate via an automated [GitHub workflow](https://github.com/thunderbird/thunderbird-android/actions/workflows/translation-update.yml). This workflow:
-1. Fetches the latest changes from Weblate's Git export.
-2. Creates a pull request with the updated translation files.
-3. Preserves contributor attribution via `Co-authored-by` trailers.
+Weblate commits translations to the dedicated [l10n repository](https://github.com/thunderbird/thunderbird-android-l10n). An automated [GitHub workflow](https://github.com/thunderbird/thunderbird-android/actions/workflows/l10n-translation-update.yml):
+1. Fetches translated files from the l10n repository's `main` branch.
+2. Creates a pull request with the updated translation files against this repository's `main` branch.
+3. Links the exact l10n revision in the pull request and commit metadata. Contributor history remains available in the l10n repository.
 
 When reviewing and merging these PRs:
 
