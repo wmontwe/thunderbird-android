@@ -27,7 +27,6 @@ import net.thunderbird.feature.account.settings.impl.domain.AccountSettingsDomai
 import net.thunderbird.feature.account.settings.impl.domain.AccountSettingsDomainContract.UpdateGeneralSettingCommand
 import net.thunderbird.feature.account.settings.impl.ui.general.GeneralSettingsContract.Effect
 import net.thunderbird.feature.account.settings.impl.ui.general.GeneralSettingsContract.State
-import net.thunderbird.legacy.logging.Log
 
 class GeneralSettingsViewModelTest {
 
@@ -36,7 +35,6 @@ class GeneralSettingsViewModelTest {
     @BeforeTest
     fun setUp() {
         mainDispatcher.setUp()
-        Log.logger = TestLogger()
     }
 
     @AfterTest

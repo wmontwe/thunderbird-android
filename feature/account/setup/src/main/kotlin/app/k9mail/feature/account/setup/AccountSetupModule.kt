@@ -120,6 +120,7 @@ val featureAccountSetupModule: Module = module {
             getSpecialFolderOptions = get(),
             validateSpecialFolderOptions = get(),
             accountStateRepository = get(),
+            logger = get(),
         )
     }
 

@@ -19,6 +19,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import kotlin.test.Ignore
 import kotlinx.coroutines.test.runTest
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.components.ui.bolt.theme.k9mail.K9MailBoltTheme
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +41,7 @@ class QrCodeScannerScreenKtTest {
     @Test
     fun `starting screen should emit StartScreen event`() = runTest {
         setContentWithTheme {
-            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel)
+            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel, logger = TestLogger())
         }
 
         assertThat(viewModel.events).containsExactly(Event.StartScreen)
@@ -52,7 +53,7 @@ class QrCodeScannerScreenKtTest {
         lateinit var context: Context
         setContentWithTheme {
             context = LocalContext.current
-            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel)
+            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel, logger = TestLogger())
         }
 
         viewModel.effect(Effect.RequestCameraPermission)
@@ -68,7 +69,7 @@ class QrCodeScannerScreenKtTest {
         lateinit var context: Context
         setContentWithTheme {
             context = LocalContext.current
-            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel)
+            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel, logger = TestLogger())
         }
 
         viewModel.effect(Effect.GoToAppInfoScreen)
@@ -83,7 +84,7 @@ class QrCodeScannerScreenKtTest {
     @Ignore("This test is flaky. Figure out why.")
     fun `UiPermissionState_Granted should show QrCodeScannerView`() = runTest {
         setContentWithTheme {
-            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel)
+            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel, logger = TestLogger())
         }
 
         viewModel.applyState(State(cameraPermissionState = UiPermissionState.Granted))
@@ -94,7 +95,7 @@ class QrCodeScannerScreenKtTest {
     @Test
     fun `UiPermissionState_Denied should show PermissionDeniedContent`() = runTest {
         setContentWithTheme {
-            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel)
+            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel, logger = TestLogger())
         }
 
         viewModel.applyState(State(cameraPermissionState = UiPermissionState.Denied))
@@ -105,7 +106,7 @@ class QrCodeScannerScreenKtTest {
     @Test
     fun `pressing 'go to settings' button should send GoToSettingsClicked event`() = runTest {
         setContentWithTheme {
-            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel)
+            QrCodeScannerScreen(finishWithResult = {}, finish = {}, viewModel, logger = TestLogger())
         }
         viewModel.events.clear()
         viewModel.applyState(State(cameraPermissionState = UiPermissionState.Denied))

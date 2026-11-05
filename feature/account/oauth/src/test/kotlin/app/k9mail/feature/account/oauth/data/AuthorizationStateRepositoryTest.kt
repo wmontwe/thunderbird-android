@@ -9,6 +9,7 @@ import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.TokenRequest
 import net.openid.appauth.TokenResponse
+import net.thunderbird.components.core.logging.testing.TestLogger
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -19,8 +20,8 @@ class AuthorizationStateRepositoryTest {
     @Test
     fun `should return false with unauthorized auth state`() = runTest {
         val authState = AuthState()
-        val authorizationState = authState.toAuthorizationState()
-        val testSubject = AuthorizationStateRepository()
+        val authorizationState = authState.toAuthorizationState(TestLogger())
+        val testSubject = AuthorizationStateRepository(logger = TestLogger())
 
         val result = testSubject.isAuthorized(authorizationState)
 
@@ -43,9 +44,9 @@ class AuthorizationStateRepositoryTest {
             .setIdToken("idToken")
             .build()
         authState.update(tokenResponse, null)
-        val authorizationState = authState.toAuthorizationState()
+        val authorizationState = authState.toAuthorizationState(TestLogger())
 
-        val testSubject = AuthorizationStateRepository()
+        val testSubject = AuthorizationStateRepository(logger = TestLogger())
 
         val result = testSubject.isAuthorized(authorizationState)
 

@@ -24,6 +24,7 @@ import net.openid.appauth.GrantTypeValues
 import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.TokenRequest
 import net.openid.appauth.TokenResponse
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.oauth.OAuthConfiguration
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,7 @@ class AuthorizationRepositoryTest {
         runTest {
             val testSubject = AuthorizationRepository(
                 service = service,
+                logger = TestLogger(),
             )
             val emailAddress = "emailAddress"
             val intent = Intent()
@@ -84,6 +86,7 @@ class AuthorizationRepositoryTest {
     fun `getAuthorizationResponse should return AuthorizationResponse when intent invalid`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val intent = Intent().apply {
             putExtra(AuthorizationResponse.EXTRA_RESPONSE, authorizationResponse.jsonSerializeString())
@@ -114,6 +117,7 @@ class AuthorizationRepositoryTest {
     fun `getAuthorizationResponse should return null when intent is invalid`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val intent = Intent()
 
@@ -128,6 +132,7 @@ class AuthorizationRepositoryTest {
     fun `getAuthorizationException should return AuthorizationException when intent is valid`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val authorizationException = AuthorizationException(
             AuthorizationException.TYPE_OAUTH_AUTHORIZATION_ERROR,
@@ -152,6 +157,7 @@ class AuthorizationRepositoryTest {
     fun `getAuthorizationException should return null when intent is invalid`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val intent = Intent()
 
@@ -166,6 +172,7 @@ class AuthorizationRepositoryTest {
     fun `getExchangeToken should return success when tokenRequest successful`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val tokenRequest = TokenRequest.Builder(
             authorizationConfiguration,
@@ -186,7 +193,7 @@ class AuthorizationRepositoryTest {
         val result = testSubject.getExchangeToken(authorizationResponse)
 
         val expectedAuthState = AuthState(authorizationResponse, tokenResponse, null)
-        val successAuthorizationState = expectedAuthState.toAuthorizationState()
+        val successAuthorizationState = expectedAuthState.toAuthorizationState(TestLogger())
 
         assertThat(result).isEqualTo(AuthorizationResult.Success(successAuthorizationState))
     }
@@ -194,6 +201,7 @@ class AuthorizationRepositoryTest {
     fun `getExchangeToken should return failure when tokenRequest failure`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val authorizationException = AuthorizationException(
             AuthorizationException.TYPE_OAUTH_AUTHORIZATION_ERROR,
@@ -218,6 +226,7 @@ class AuthorizationRepositoryTest {
     fun `getExchangeToken should return unknown failure when tokenRequest null for response and exception`() = runTest {
         val testSubject = AuthorizationRepository(
             service = service,
+            logger = TestLogger(),
         )
         val exception = Exception("Unknown error")
         service.stub {

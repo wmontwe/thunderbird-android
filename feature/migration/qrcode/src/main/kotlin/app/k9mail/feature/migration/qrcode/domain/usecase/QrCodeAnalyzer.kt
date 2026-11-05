@@ -9,7 +9,7 @@ import com.google.zxing.NotFoundException
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.multi.qrcode.QRCodeMultiReader
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 
 private const val TAG = "QrCodeAnalyzer"
 
@@ -18,6 +18,7 @@ private const val TAG = "QrCodeAnalyzer"
  */
 internal class QrCodeAnalyzer(
     private val qrCodeListener: (String) -> Unit,
+    private val logger: Logger,
 ) : ImageAnalysis.Analyzer {
     private val qrCodeReader = QRCodeMultiReader()
 
@@ -49,7 +50,7 @@ internal class QrCodeAnalyzer(
         } catch (e: NotFoundException) {
             emptyList()
         } catch (e: Exception) {
-            Log.e(TAG, e, "Error while trying to read QR code")
+            logger.error(tag = TAG, throwable = e) { "Error while trying to read QR code" }
             emptyList()
         } finally {
             qrCodeReader.reset()

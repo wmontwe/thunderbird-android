@@ -15,9 +15,9 @@ import com.fsck.k9.mail.folders.FolderFetcherException
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.components.core.outcome.Outcome
 import net.thunderbird.core.ui.contract.mvi.BaseViewModel
-import net.thunderbird.legacy.logging.Log
 
 private const val TAG = "SpecialFoldersViewModel"
 
@@ -26,6 +26,7 @@ class SpecialFoldersViewModel(
     private val getSpecialFolderOptions: UseCase.GetSpecialFolderOptions,
     private val validateSpecialFolderOptions: UseCase.ValidateSpecialFolderOptions,
     private val accountStateRepository: AccountDomainContract.AccountStateRepository,
+    private val logger: Logger,
     initialState: State = State(),
 ) : BaseViewModel<State, Event, Effect>(initialState),
     ViewModel {
@@ -90,7 +91,7 @@ class SpecialFoldersViewModel(
         return try {
             getSpecialFolderOptions()
         } catch (exception: FolderFetcherException) {
-            Log.e(TAG, exception, "Error while loading special folders")
+            logger.error(tag = TAG, throwable = exception) { "Error while loading special folders" }
             updateState { state ->
                 state.copy(
                     isLoading = false,

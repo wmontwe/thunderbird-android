@@ -19,7 +19,6 @@ import java.io.File
 import java.util.EnumSet
 import net.thunderbird.core.common.mail.Flag
 import net.thunderbird.components.core.logging.testing.TestLogger
-import net.thunderbird.legacy.logging.Log
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -46,7 +45,6 @@ class CommandSyncTest {
     fun setUp() {
         BinaryTempFileBody.setTempDirectory(File(System.getProperty("java.io.tmpdir")))
         createFolderInBackendStorage()
-        Log.logger = TestLogger()
     }
 
     @Test
@@ -253,6 +251,7 @@ class CommandSyncTest {
             okHttpClient = okHttpClient,
             accountId = ACCOUNT_ID,
             httpAuthentication = httpAuthentication,
+            logger = TestLogger(),
         )
     }
 

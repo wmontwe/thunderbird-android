@@ -25,7 +25,6 @@ androidComponents {
 
 dependencies {
     implementation(projects.legacy.core)
-    implementation(projects.legacy.logging)
     implementation(projects.legacy.ui.legacy)
 
     implementation(libs.androidx.glance.appwidget)

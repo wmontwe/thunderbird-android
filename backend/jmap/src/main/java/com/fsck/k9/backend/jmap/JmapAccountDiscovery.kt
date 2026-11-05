@@ -1,7 +1,7 @@
 package com.fsck.k9.backend.jmap
 
 import java.net.UnknownHostException
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 import rs.ltt.jmap.client.JmapClient
 import rs.ltt.jmap.client.api.EndpointNotFoundException
 import rs.ltt.jmap.client.api.UnauthorizedException
@@ -9,7 +9,9 @@ import rs.ltt.jmap.common.entity.capability.MailAccountCapability
 
 private const val TAG = "JmapAccountDiscovery"
 
-class JmapAccountDiscovery {
+class JmapAccountDiscovery(
+    private val logger: Logger,
+) {
     fun discover(emailAddress: String, password: String): JmapDiscoveryResult {
         val jmapClient = JmapClient(emailAddress, password)
         val session = try {
@@ -21,7 +23,7 @@ class JmapAccountDiscovery {
         } catch (e: UnauthorizedException) {
             return JmapDiscoveryResult.AuthenticationFailure
         } catch (e: Exception) {
-            Log.e(TAG, e, "Unable to get JMAP session")
+            logger.error(tag = TAG, throwable = e) { "Unable to get JMAP session" }
             return JmapDiscoveryResult.GenericFailure(e)
         }
 

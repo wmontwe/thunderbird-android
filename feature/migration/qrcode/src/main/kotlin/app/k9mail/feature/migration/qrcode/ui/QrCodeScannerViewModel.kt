@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.ui.contract.mvi.BaseViewModel
 import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
@@ -26,7 +27,10 @@ private typealias CameraUseCaseProviderFactory = (PayloadCallback) -> UseCase.Ca
 internal class QrCodeScannerViewModel(
     private val qrCodePayloadReader: UseCase.QrCodePayloadReader,
     private val qrCodeSettingsWriter: UseCase.QrCodeSettingsWriter,
-    createCameraUseCaseProvider: CameraUseCaseProviderFactory = { callback -> QrCodeImageAnalysisProvider(callback) },
+    logger: Logger,
+    createCameraUseCaseProvider: CameraUseCaseProviderFactory = { callback ->
+        QrCodeImageAnalysisProvider(callback, logger)
+    },
     private val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
     initialState: State = State(),
 ) : BaseViewModel<State, Event, Effect>(initialState), QrCodeScannerContract.ViewModel {

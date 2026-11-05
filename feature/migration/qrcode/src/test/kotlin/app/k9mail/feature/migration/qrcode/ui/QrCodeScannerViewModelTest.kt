@@ -31,7 +31,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.components.ui.testing.coroutines.MainDispatcherHelper
-import net.thunderbird.legacy.logging.Log
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -45,7 +44,6 @@ class QrCodeScannerViewModelTest {
 
     @BeforeTest
     fun setUp() {
-        Log.logger = TestLogger()
         mainDispatcher.setUp()
     }
 
@@ -207,13 +205,14 @@ private class QrCodeScannerScreenRobot(
     private val qrCodeSettingsWriter = FakeQrCodeSettingsWriter()
     private val viewModel = QrCodeScannerViewModel(
         qrCodePayloadReader = QrCodePayloadReader(
-            parser = QrCodePayloadParser(QrCodePayloadAdapter(logger = TestLogger())),
+            parser = QrCodePayloadParser(QrCodePayloadAdapter(logger = TestLogger()), logger = TestLogger()),
             mapper = QrCodePayloadMapper(
                 qrCodePayloadValidator = QrCodePayloadValidator(logger = TestLogger()),
                 deletePolicyProvider = FakeDeletePolicyProvider(),
             ),
         ),
         qrCodeSettingsWriter = qrCodeSettingsWriter,
+        logger = TestLogger(),
         createCameraUseCaseProvider = { listener ->
             qrCodeListener = listener
             UseCase.CameraUseCasesProvider { emptyList() }

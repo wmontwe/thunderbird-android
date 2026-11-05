@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import app.k9mail.feature.account.common.ui.AppTitleTopHeader
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.components.ui.bolt.atom.button.ButtonFilled
 import net.thunderbird.components.ui.bolt.atom.button.ButtonOutlined
 import net.thunderbird.components.ui.bolt.atom.card.CardFilled
@@ -47,7 +48,6 @@ import net.thunderbird.components.ui.bolt.template.Scaffold
 import net.thunderbird.components.ui.bolt.theme.BoltTheme
 import net.thunderbird.core.common.provider.BrandNameProvider
 import net.thunderbird.feature.thundermail.ui.component.ThundermailButtonPanel
-import net.thunderbird.legacy.logging.Log
 import org.koin.compose.koinInject
 
 private const val TAG = "TbOnboardingMigrationScreen"
@@ -60,6 +60,7 @@ internal fun TbOnboardingMigrationScreen(
     onImport: () -> Unit,
     modifier: Modifier = Modifier,
     brandNameProvider: BrandNameProvider = koinInject(),
+    logger: Logger = koinInject(),
 ) {
     val scrollState = rememberScrollState()
 
@@ -93,7 +94,7 @@ internal fun TbOnboardingMigrationScreen(
                     modifier = Modifier.padding(bottom = BoltTheme.spacings.quadruple),
                 )
 
-                AlreadyUsingThunderbirdCard(onQrCodeScan)
+                AlreadyUsingThunderbirdCard(onQrCodeScan, logger = logger)
 
                 Spacer(modifier = Modifier.height(BoltTheme.spacings.triple))
 
@@ -124,7 +125,7 @@ internal fun TbOnboardingMigrationScreen(
 }
 
 @Composable
-private fun AlreadyUsingThunderbirdCard(onQrCodeScan: () -> Unit) {
+private fun AlreadyUsingThunderbirdCard(onQrCodeScan: () -> Unit, logger: Logger) {
     TextCard(title = stringResource(R.string.onboarding_migration_thunderbird_qr_code_import_title)) {
         TextBodyMedium(
             text = stringResource(R.string.onboarding_migration_thunderbird_qr_code_import_text),
@@ -156,6 +157,7 @@ private fun AlreadyUsingThunderbirdCard(onQrCodeScan: () -> Unit) {
         )
 
         ThunderbirdVersionNote(
+            logger = logger,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = BoltTheme.spacings.half),
@@ -165,6 +167,7 @@ private fun AlreadyUsingThunderbirdCard(onQrCodeScan: () -> Unit) {
 
 @Composable
 private fun ThunderbirdVersionNote(
+    logger: Logger,
     modifier: Modifier = Modifier,
 ) {
     val formatString = if (LocalInspectionMode.current) {
@@ -180,7 +183,7 @@ private fun ThunderbirdVersionNote(
     Box(
         modifier = modifier
             .clip(BoltTheme.shapes.small)
-            .clickable { context.launchLearnHowToUpdateThunderbird() }
+            .clickable { context.launchLearnHowToUpdateThunderbird(logger) }
             .semantics { role = Role.Button }
             .padding(BoltTheme.spacings.double),
     ) {
@@ -276,14 +279,14 @@ private fun BulletList(
     }
 }
 
-private fun Context.launchLearnHowToUpdateThunderbird() {
+private fun Context.launchLearnHowToUpdateThunderbird(logger: Logger) {
     try {
         val url = getString(R.string.onboarding_migration_thunderbird_update_thunderbird_url)
         val viewIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
         startActivity(viewIntent)
     } catch (e: ActivityNotFoundException) {
-        Log.d(TAG, e, "Failed to open URL")
+        logger.debug(tag = TAG, throwable = e) { "Failed to open URL" }
 
         Toast.makeText(
             this,

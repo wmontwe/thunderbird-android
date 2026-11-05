@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
     implementation(projects.legacy.core)
-    implementation(projects.legacy.logging)
     implementation(projects.legacy.ui.legacy)
 }
 

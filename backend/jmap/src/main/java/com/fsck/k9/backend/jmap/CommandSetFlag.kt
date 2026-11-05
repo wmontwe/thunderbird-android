@@ -1,7 +1,7 @@
 package com.fsck.k9.backend.jmap
 
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.Flag
-import net.thunderbird.legacy.logging.Log
 import rs.ltt.jmap.client.JmapClient
 import rs.ltt.jmap.common.entity.filter.EmailFilterCondition
 import rs.ltt.jmap.common.method.call.email.QueryEmailMethodCall
@@ -15,12 +15,13 @@ private const val TAG = "CommandSetFlag"
 class CommandSetFlag(
     private val jmapClient: JmapClient,
     private val accountId: String,
+    private val logger: Logger,
 ) {
     fun setFlag(messageServerIds: List<String>, flag: Flag, newState: Boolean) {
         if (newState) {
-            Log.v(TAG, "Setting flag %s for messages %s", flag, messageServerIds)
+            logger.verbose(tag = TAG) { "Setting flag $flag for messages $messageServerIds" }
         } else {
-            Log.v(TAG, "Removing flag %s for messages %s", flag, messageServerIds)
+            logger.verbose(tag = TAG) { "Removing flag $flag for messages $messageServerIds" }
         }
 
         val keyword = flag.toKeyword()
@@ -50,7 +51,7 @@ class CommandSetFlag(
     }
 
     fun markAllAsRead(folderServerId: String) {
-        Log.d(TAG, "Marking all messages in %s as read", folderServerId)
+        logger.debug(tag = TAG) { "Marking all messages in $folderServerId as read" }
 
         val keywordsPatch = Patches.set("keywords/\$seen", true)
 
@@ -58,7 +59,7 @@ class CommandSetFlag(
         val limit = minOf(MAX_CHUNK_SIZE, session.maxObjectsInSet).toLong()
 
         do {
-            Log.v(TAG, "Trying to mark up to %d messages in %s as read", limit, folderServerId)
+            logger.verbose(tag = TAG) { "Trying to mark up to $limit messages in $folderServerId as read" }
 
             val queryEmailCall = jmapClient.call(
                 QueryEmailMethodCall.builder()
@@ -79,7 +80,7 @@ class CommandSetFlag(
             val totalNumberOfEmails = queryEmailResponse.total ?: error("Server didn't return property 'total'")
 
             if (numberOfReturnedEmails == 0) {
-                Log.v(TAG, "There were no messages in %s to mark as read", folderServerId)
+                logger.verbose(tag = TAG) { "There were no messages in $folderServerId to mark as read" }
             } else {
                 val updates = queryEmailResponse.ids.map { emailId ->
                     emailId to keywordsPatch
@@ -94,7 +95,7 @@ class CommandSetFlag(
 
                 setEmailCall.getMainResponseBlocking<SetEmailMethodResponse>()
 
-                Log.v(TAG, "Marked %d messages in %s as read", numberOfReturnedEmails, folderServerId)
+                logger.verbose(tag = TAG) { "Marked $numberOfReturnedEmails messages in $folderServerId as read" }
             }
         } while (totalNumberOfEmails > numberOfReturnedEmails)
     }

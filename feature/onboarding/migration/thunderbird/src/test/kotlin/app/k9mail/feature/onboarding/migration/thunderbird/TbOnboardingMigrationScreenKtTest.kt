@@ -8,6 +8,7 @@ import app.k9mail.core.ui.compose.testing.ComposeTest
 import app.k9mail.core.ui.compose.testing.setContentWithKoinAndTheme
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.provider.BrandNameProvider
 import net.thunderbird.core.featureflag.FeatureFlagProvider
 import net.thunderbird.core.featureflag.FeatureFlagResult
@@ -24,6 +25,7 @@ class TbOnboardingMigrationScreenKtTest : ComposeTest() {
                 onAddAccount = { error("Should not be called") },
                 onImport = { error("Should not be called") },
                 brandNameProvider = FakeBrandNameProvider,
+                logger = TestLogger(),
             )
         }
 
@@ -44,6 +46,7 @@ class TbOnboardingMigrationScreenKtTest : ComposeTest() {
                 onAddAccount = { addAccountClickCounter++ },
                 onImport = { error("Should not be called") },
                 brandNameProvider = FakeBrandNameProvider,
+                logger = TestLogger(),
             )
         }
 
@@ -64,6 +67,7 @@ class TbOnboardingMigrationScreenKtTest : ComposeTest() {
                 onAddAccount = { error("Should not be called") },
                 onImport = { importClickCounter++ },
                 brandNameProvider = FakeBrandNameProvider,
+                logger = TestLogger(),
             )
         }
 

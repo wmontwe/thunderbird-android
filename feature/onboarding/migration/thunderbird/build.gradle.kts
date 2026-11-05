@@ -18,7 +18,6 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.feature.account.common)
     implementation(projects.feature.thundermail.api)
-    implementation(projects.legacy.logging)
 
     testImplementation(projects.core.ui.compose.testing)
     testImplementation(projects.core.featureflag)

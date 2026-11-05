@@ -28,6 +28,7 @@ import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.components.core.outcome.Outcome
 import net.thunderbird.components.ui.testing.coroutines.MainDispatcherHelper
 import net.thunderbird.core.validation.ValidationError
@@ -304,6 +305,7 @@ class SpecialFoldersViewModelTest {
             },
             validateSpecialFolderOptions = validateSpecialFolderOptions,
             accountStateRepository = accountStateRepository,
+            logger = TestLogger(),
             initialState = initialState,
         )
 

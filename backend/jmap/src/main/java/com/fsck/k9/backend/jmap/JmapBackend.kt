@@ -28,11 +28,18 @@ class JmapBackend(
     private val jmapClient = createJmapClient(config, httpAuthentication)
     private val accountId = config.accountId
     private val commandRefreshFolderList = CommandRefreshFolderList(backendStorage, jmapClient, accountId)
-    private val commandSync = CommandSync(backendStorage, jmapClient, okHttpClient, accountId, httpAuthentication)
-    private val commandSetFlag = CommandSetFlag(jmapClient, accountId)
+    private val commandSync = CommandSync(
+        backendStorage,
+        jmapClient,
+        okHttpClient,
+        accountId,
+        httpAuthentication,
+        logger,
+    )
+    private val commandSetFlag = CommandSetFlag(jmapClient, accountId, logger)
     private val commandDelete = CommandDelete(jmapClient, accountId, logger)
-    private val commandMove = CommandMove(jmapClient, accountId)
-    private val commandUpload = CommandUpload(jmapClient, okHttpClient, httpAuthentication, accountId)
+    private val commandMove = CommandMove(jmapClient, accountId, logger)
+    private val commandUpload = CommandUpload(jmapClient, okHttpClient, httpAuthentication, accountId, logger)
     override val supportsFlags = true
     override val supportsExpunge = false
     override val supportsMove = true

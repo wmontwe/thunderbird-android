@@ -27,11 +27,12 @@ val featureAccountOAuthModule: Module = module {
     factory<AccountOAuthDomainContract.AuthorizationRepository> {
         AuthorizationRepository(
             service = get(),
+            logger = get(),
         )
     }
 
     factory<AccountOAuthDomainContract.AuthorizationStateRepository> {
-        AuthorizationStateRepository()
+        AuthorizationStateRepository(logger = get())
     }
 
     factory<UseCase.GetOAuthRequestIntent> {

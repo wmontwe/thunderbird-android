@@ -9,9 +9,6 @@ import net.thunderbird.core.common.mail.toUserEmailAddress
 import net.thunderbird.core.validation.ValidationError
 import net.thunderbird.core.validation.ValidationOutcome
 import net.thunderbird.core.validation.ValidationSuccess
-import net.thunderbird.legacy.logging.Log
-
-private const val TAG = "ValidateEmailAddress"
 
 /**
  * Validate an email address that the user wants to add to an account.
@@ -38,8 +35,6 @@ class ValidateEmailAddress : UseCase.ValidateEmailAddress {
                 Outcome.Failure(ValidateEmailAddressError.NotAllowed)
             }
         } catch (e: EmailAddressParserException) {
-            Log.v(TAG, e, "Error parsing email address: %s", emailAddress)
-
             val validationError = when (e.error) {
                 EmailAddressParserError.AddressLiteralsNotSupported,
                 EmailAddressParserError.LocalPartLengthExceeded,

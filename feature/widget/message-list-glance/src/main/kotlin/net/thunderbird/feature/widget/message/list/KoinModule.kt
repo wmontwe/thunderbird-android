@@ -10,6 +10,7 @@ val featureWidgetMessageListModule = module {
             messageHelper = get(),
             messageListPreferencesManager = get(),
             outboxFolderManager = get(),
+            logger = get(),
         )
     }
 }

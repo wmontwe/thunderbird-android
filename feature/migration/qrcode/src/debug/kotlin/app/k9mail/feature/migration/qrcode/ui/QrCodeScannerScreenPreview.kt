@@ -5,6 +5,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.k9mail.feature.migration.qrcode.ui.QrCodeScannerContract.State
 import app.k9mail.feature.migration.qrcode.ui.QrCodeScannerContract.UiPermissionState
+import net.thunderbird.components.core.logging.DefaultLogger
+import net.thunderbird.components.core.logging.LogLevel
+import net.thunderbird.components.core.logging.console.ConsoleLogSink
 import net.thunderbird.components.ui.bolt.PreviewWithTheme
 
 @Preview
@@ -19,6 +22,7 @@ fun QrCodeScannerScreenPreview_permission_unknown() {
                     initialState = State(cameraPermissionState = UiPermissionState.Unknown),
                 )
             },
+            logger = DefaultLogger(sink = ConsoleLogSink(level = LogLevel.VERBOSE)),
         )
     }
 }
@@ -35,6 +39,7 @@ fun QrCodeScannerScreenPreview_permission_granted() {
                     initialState = State(cameraPermissionState = UiPermissionState.Granted),
                 )
             },
+            logger = DefaultLogger(sink = ConsoleLogSink(level = LogLevel.VERBOSE)),
         )
     }
 }
@@ -51,6 +56,7 @@ fun QrCodeScannerScreenPreview_permission_denied() {
                     initialState = State(cameraPermissionState = UiPermissionState.Denied),
                 )
             },
+            logger = DefaultLogger(sink = ConsoleLogSink(level = LogLevel.VERBOSE)),
         )
     }
 }

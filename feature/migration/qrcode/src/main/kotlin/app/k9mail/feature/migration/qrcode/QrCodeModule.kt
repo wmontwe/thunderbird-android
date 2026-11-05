@@ -19,11 +19,12 @@ val qrCodeModule = module {
         QrCodeScannerViewModel(
             qrCodePayloadReader = get(),
             qrCodeSettingsWriter = get(),
+            logger = get(),
         )
     }
 
     factory { QrCodePayloadAdapter(logger = get()) }
-    factory { QrCodePayloadParser(qrCodePayloadAdapter = get()) }
+    factory { QrCodePayloadParser(qrCodePayloadAdapter = get(), logger = get()) }
     factory { QrCodePayloadValidator(logger = get()) }
     factory {
         QrCodePayloadMapper(

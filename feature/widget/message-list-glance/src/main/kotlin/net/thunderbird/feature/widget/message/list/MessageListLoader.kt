@@ -5,6 +5,7 @@ import com.fsck.k9.helper.MessageHelper
 import com.fsck.k9.mailstore.MessageColumns
 import com.fsck.k9.search.conditionsFor
 import com.fsck.k9.search.getLegacyAccounts
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.android.account.LegacyAccount
 import net.thunderbird.core.android.account.LegacyAccountManager
 import net.thunderbird.core.android.account.SortType
@@ -12,7 +13,6 @@ import net.thunderbird.core.preference.display.visualSettings.message.list.Messa
 import net.thunderbird.feature.mail.folder.api.OutboxFolderManager
 import net.thunderbird.feature.search.legacy.SearchConditionTreeNode
 import net.thunderbird.feature.search.legacy.sql.SqlWhereClause
-import net.thunderbird.legacy.logging.Log
 
 private const val TAG = "MessageListLoader"
 
@@ -22,6 +22,7 @@ internal class MessageListLoader(
     private val messageHelper: MessageHelper,
     private val messageListPreferencesManager: MessageListPreferencesManager,
     private val outboxFolderManager: OutboxFolderManager,
+    private val logger: Logger,
 ) {
 
     @Suppress("TooGenericExceptionCaught")
@@ -29,7 +30,7 @@ internal class MessageListLoader(
         return try {
             getMessageListInfo(config)
         } catch (e: Exception) {
-            Log.e(TAG, e, "Error while fetching message list")
+            logger.error(tag = TAG, throwable = e) { "Error while fetching message list" }
 
             // TODO: Return an error object instead of an empty list
             emptyList()

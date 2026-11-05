@@ -10,7 +10,6 @@ dependencies {
 
     implementation(projects.core.common)
     implementation(projects.feature.mail.folder.api)
-    implementation(projects.legacy.logging)
 
     testImplementation(projects.mail.testing)
 }

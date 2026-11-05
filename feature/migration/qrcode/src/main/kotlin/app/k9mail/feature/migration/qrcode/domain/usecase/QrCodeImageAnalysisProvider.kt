@@ -7,15 +7,17 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import app.k9mail.feature.migration.qrcode.domain.QrCodeDomainContract.UseCase.CameraUseCasesProvider
 import java.util.concurrent.Executors
+import net.thunderbird.components.core.logging.Logger
 
 /**
  * Returns a CameraX [ImageAnalysis] instance that will scan for QR codes and notify the provided listener.
  */
 internal class QrCodeImageAnalysisProvider(
     private val qrCodeListener: (String) -> Unit,
+    private val logger: Logger,
 ) : CameraUseCasesProvider {
     override fun getUseCases(): List<UseCase> {
-        val qrCodeAnalyzer = QrCodeAnalyzer(qrCodeListener)
+        val qrCodeAnalyzer = QrCodeAnalyzer(qrCodeListener, logger)
 
         val resolutionSelector = ResolutionSelector.Builder()
             .setResolutionStrategy(

@@ -15,23 +15,16 @@ import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.mail.toUserEmailAddress
 import net.thunderbird.core.common.net.toHostname
 import net.thunderbird.core.common.net.toPort
-import net.thunderbird.legacy.logging.Log
-import org.junit.Before
 
 @Suppress("LongMethod")
 class QrCodePayloadReaderTest {
     private val reader = QrCodePayloadReader(
-        parser = QrCodePayloadParser(QrCodePayloadAdapter(logger = TestLogger())),
+        parser = QrCodePayloadParser(QrCodePayloadAdapter(logger = TestLogger()), logger = TestLogger()),
         mapper = QrCodePayloadMapper(
             qrCodePayloadValidator = QrCodePayloadValidator(logger = TestLogger()),
             deletePolicyProvider = FakeDeletePolicyProvider(),
         ),
     )
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
 
     @Test
     fun `one account, one identity, no passwords`() {

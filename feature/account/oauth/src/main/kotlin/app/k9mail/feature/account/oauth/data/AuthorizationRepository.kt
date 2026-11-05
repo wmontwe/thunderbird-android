@@ -15,13 +15,14 @@ import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.CodeVerifierUtil
 import net.openid.appauth.ResponseTypeValues
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.oauth.OAuthConfiguration
-import net.thunderbird.legacy.logging.Log
 
 private const val TAG = "AuthorizationRepository"
 
 class AuthorizationRepository(
     private val service: AuthorizationService,
+    private val logger: Logger,
 ) : AccountOAuthDomainContract.AuthorizationRepository {
 
     override fun getAuthorizationRequestIntent(
@@ -37,7 +38,7 @@ class AuthorizationRepository(
         return try {
             AuthorizationResponse.fromIntent(intent)
         } catch (e: IllegalArgumentException) {
-            Log.e(TAG, e, "Error deserializing AuthorizationResponse")
+            logger.error(tag = TAG, throwable = e) { "Error deserializing AuthorizationResponse" }
             null
         }
     }
@@ -46,7 +47,7 @@ class AuthorizationRepository(
         return try {
             AuthorizationException.fromIntent(intent)
         } catch (e: IllegalArgumentException) {
-            Log.e(TAG, e, "Error deserializing AuthorizationException")
+            logger.error(tag = TAG, throwable = e) { "Error deserializing AuthorizationException" }
             null
         }
     }
@@ -61,7 +62,7 @@ class AuthorizationRepository(
                 AuthorizationResult.Failure(authorizationException)
             } else if (tokenResponse != null) {
                 val authState = AuthState(response, tokenResponse, null)
-                AuthorizationResult.Success(authState.toAuthorizationState())
+                AuthorizationResult.Success(authState.toAuthorizationState(logger))
             } else {
                 AuthorizationResult.Failure(Exception("Unknown error"))
             }

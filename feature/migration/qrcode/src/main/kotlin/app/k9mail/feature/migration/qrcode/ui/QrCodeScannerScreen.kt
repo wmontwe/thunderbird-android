@@ -14,8 +14,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import app.k9mail.feature.migration.qrcode.ui.QrCodeScannerContract.Effect
 import app.k9mail.feature.migration.qrcode.ui.QrCodeScannerContract.Event
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.ui.contract.mvi.observe
-import net.thunderbird.legacy.logging.Log
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "QrCodeScannerScreen"
@@ -25,6 +26,7 @@ internal fun QrCodeScannerScreen(
     finishWithResult: (Uri) -> Unit,
     finish: () -> Unit,
     viewModel: QrCodeScannerContract.ViewModel = koinViewModel<QrCodeScannerViewModel>(),
+    logger: Logger = koinInject(),
 ) {
     val cameraPermissionLauncher = rememberLauncherForActivityResult(RequestPermission()) { success ->
         viewModel.event(Event.CameraPermissionResult(success))
@@ -35,7 +37,7 @@ internal fun QrCodeScannerScreen(
     val (state, dispatch) = viewModel.observe { effect ->
         when (effect) {
             Effect.RequestCameraPermission -> cameraPermissionLauncher.requestCameraPermission()
-            Effect.GoToAppInfoScreen -> context.goToAppInfoScreen()
+            Effect.GoToAppInfoScreen -> context.goToAppInfoScreen(logger)
             is Effect.ReturnResult -> finishWithResult(effect.contentUri)
             Effect.Cancel -> finish()
         }
@@ -52,7 +54,7 @@ internal fun QrCodeScannerScreen(
     )
 }
 
-private fun Context.goToAppInfoScreen() {
+private fun Context.goToAppInfoScreen(logger: Logger) {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
         data = Uri.fromParts("package", packageName, null)
     }
@@ -60,7 +62,7 @@ private fun Context.goToAppInfoScreen() {
     try {
         startActivity(intent)
     } catch (e: ActivityNotFoundException) {
-        Log.e(TAG, e, "Error opening Android's app settings")
+        logger.error(tag = TAG, throwable = e) { "Error opening Android's app settings" }
     }
 }
 
