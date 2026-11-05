@@ -16,8 +16,6 @@ import com.fsck.k9.mail.testing.security.SimpleTrustedSocketFactory
 import java.net.UnknownHostException
 import kotlin.test.Test
 import net.thunderbird.components.core.logging.testing.TestLogger
-import net.thunderbird.legacy.logging.Log
-import org.junit.Before
 
 private const val USERNAME = "user"
 private const val PASSWORD = "password"
@@ -26,12 +24,7 @@ private val CLIENT_CERTIFICATE_ALIAS: String? = null
 class Pop3ServerSettingsValidatorTest {
     private val fakeTrustManager = FakeTrustManager()
     private val trustedSocketFactory = SimpleTrustedSocketFactory(fakeTrustManager)
-    private val serverSettingsValidator = Pop3ServerSettingsValidator(trustedSocketFactory)
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
+    private val serverSettingsValidator = Pop3ServerSettingsValidator(trustedSocketFactory, TestLogger())
 
     @Test
     fun `valid server settings should return Success`() {

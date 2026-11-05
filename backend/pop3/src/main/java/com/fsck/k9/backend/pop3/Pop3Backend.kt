@@ -11,6 +11,7 @@ import com.fsck.k9.mail.Message
 import com.fsck.k9.mail.Part
 import com.fsck.k9.mail.store.pop3.Pop3Store
 import com.fsck.k9.mail.transport.smtp.SmtpTransport
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.Flag
 import net.thunderbird.feature.mail.folder.api.FolderPathDelimiter
 
@@ -19,8 +20,9 @@ class Pop3Backend(
     backendStorage: BackendStorage,
     private val pop3Store: Pop3Store,
     private val smtpTransport: SmtpTransport,
+    logger: Logger,
 ) : Backend {
-    private val pop3Sync: Pop3Sync = Pop3Sync(accountName, backendStorage, pop3Store)
+    private val pop3Sync: Pop3Sync = Pop3Sync(accountName, backendStorage, remoteStore = pop3Store, logger)
     private val commandRefreshFolderList = CommandRefreshFolderList(backendStorage)
     private val commandSetFlag = CommandSetFlag(pop3Store)
     private val commandDownloadMessage = CommandDownloadMessage(backendStorage, pop3Store)

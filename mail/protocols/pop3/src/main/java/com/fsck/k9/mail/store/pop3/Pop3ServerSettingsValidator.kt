@@ -13,10 +13,12 @@ import com.fsck.k9.mail.server.ServerSettingsValidationResult.ClientCertificateE
 import com.fsck.k9.mail.server.ServerSettingsValidator
 import com.fsck.k9.mail.ssl.TrustedSocketFactory
 import java.io.IOException
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.exception.MessagingException
 
 class Pop3ServerSettingsValidator(
     private val trustedSocketFactory: TrustedSocketFactory,
+    private val logger: Logger,
 ) : ServerSettingsValidator {
 
     @Suppress("TooGenericExceptionCaught")
@@ -24,7 +26,7 @@ class Pop3ServerSettingsValidator(
         serverSettings: ServerSettings,
         authStateStorage: AuthStateStorage?,
     ): ServerSettingsValidationResult {
-        val store = Pop3Store(serverSettings, trustedSocketFactory)
+        val store = Pop3Store(serverSettings, trustedSocketFactory, logger)
 
         return try {
             store.checkSettings()

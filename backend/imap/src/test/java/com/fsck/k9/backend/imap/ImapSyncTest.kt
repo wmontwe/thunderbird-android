@@ -22,10 +22,8 @@ import java.util.Date
 import kotlinx.coroutines.test.runTest
 import net.thunderbird.core.common.mail.Flag
 import net.thunderbird.components.core.logging.testing.TestLogger
-import net.thunderbird.legacy.logging.Log
 import org.apache.james.mime4j.dom.field.DateTimeField
 import org.apache.james.mime4j.field.DefaultFieldParser
-import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
@@ -45,14 +43,9 @@ class ImapSyncTest {
     private val backendFolder = backendStorage.getFolder(FOLDER_SERVER_ID)
     private val imapStore = TestImapStore()
     private val imapFolder = imapStore.addFolder(FOLDER_SERVER_ID)
-    private val imapSync = ImapSync(ACCOUNT_NAME, backendStorage, imapStore)
+    private val imapSync = ImapSync(accountName = ACCOUNT_NAME, backendStorage, imapStore, logger = TestLogger())
     private val syncListener = mock<SyncListener>()
     private val defaultSyncConfig = createSyncConfig()
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
 
     @Test
     fun `sync of empty folder should notify listener`() = runTest {

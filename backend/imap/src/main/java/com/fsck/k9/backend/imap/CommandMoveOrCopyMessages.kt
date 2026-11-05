@@ -3,11 +3,14 @@ package com.fsck.k9.backend.imap
 import com.fsck.k9.mail.store.imap.ImapFolder
 import com.fsck.k9.mail.store.imap.ImapStore
 import com.fsck.k9.mail.store.imap.OpenMode
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 
 private const val TAG = "CommandMoveOrCopyMessages"
 
-internal class CommandMoveOrCopyMessages(private val imapStore: ImapStore) {
+internal class CommandMoveOrCopyMessages(
+    private val imapStore: ImapStore,
+    private val logger: Logger,
+) {
 
     fun moveMessages(
         sourceFolderServerId: String,
@@ -48,7 +51,7 @@ internal class CommandMoveOrCopyMessages(private val imapStore: ImapStore) {
             remoteSrcFolder = imapStore.getFolder(srcFolder)
 
             if (uids.isEmpty()) {
-                Log.i(TAG, "moveOrCopyMessages: no remote messages to move, skipping")
+                logger.info(tag = TAG) { "moveOrCopyMessages: no remote messages to move, skipping" }
                 return null
             }
 
@@ -56,14 +59,10 @@ internal class CommandMoveOrCopyMessages(private val imapStore: ImapStore) {
 
             val messages = uids.map { uid -> remoteSrcFolder.getMessage(uid) }
 
-            Log.d(
-                TAG,
-                "moveOrCopyMessages: source folder = %s, %d messages, destination folder = %s, isCopy = %s",
-                srcFolder,
-                messages.size,
-                destFolder,
-                isCopy,
-            )
+            logger.debug(tag = TAG) {
+                "moveOrCopyMessages: source folder = $srcFolder, ${messages.size} messages, " +
+                    "destination folder = $destFolder, isCopy = $isCopy"
+            }
 
             remoteDestFolder = imapStore.getFolder(destFolder)
             if (isCopy) {

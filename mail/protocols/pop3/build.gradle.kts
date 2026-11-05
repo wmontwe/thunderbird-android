@@ -6,7 +6,6 @@ plugins {
 dependencies {
     api(projects.mail.common)
     implementation(projects.core.common)
-    implementation(projects.legacy.logging)
 
     testImplementation(projects.mail.testing)
 

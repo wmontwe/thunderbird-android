@@ -34,10 +34,12 @@ val featureAccountServerValidationModule = module {
             ),
             pop3Validator = Pop3ServerSettingsValidator(
                 trustedSocketFactory = get(),
+                logger = get(),
             ),
             smtpValidator = SmtpServerSettingsValidator(
                 trustedSocketFactory = get(),
                 oAuth2TokenProviderFactory = get(),
+                logger = get(),
             ),
         )
     }

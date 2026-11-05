@@ -12,8 +12,6 @@ import java.io.IOException
 import java.net.Socket
 import net.thunderbird.core.common.exception.MessagingException
 import net.thunderbird.components.core.logging.testing.TestLogger
-import net.thunderbird.legacy.logging.Log
-import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
@@ -22,12 +20,7 @@ import org.mockito.kotlin.stubbing
 
 class Pop3StoreTest {
     private val trustedSocketFactory = mock<TrustedSocketFactory>()
-    private val store: Pop3Store = Pop3Store(createServerSettings(), trustedSocketFactory)
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
+    private val store: Pop3Store = Pop3Store(createServerSettings(), trustedSocketFactory, TestLogger())
 
     @Test
     fun `getFolder() should return same instance every time`() {

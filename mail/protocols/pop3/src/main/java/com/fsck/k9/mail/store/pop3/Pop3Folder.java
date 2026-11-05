@@ -15,7 +15,7 @@ import net.thunderbird.core.common.mail.Flag;
 import com.fsck.k9.mail.K9MailLib;
 import com.fsck.k9.mail.MessageRetrievalListener;
 import net.thunderbird.core.common.exception.MessagingException;
-import net.thunderbird.legacy.logging.Log;
+import net.thunderbird.components.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import static com.fsck.k9.mail.K9MailLib.DEBUG_PROTOCOL_POP3;
@@ -38,11 +38,13 @@ public class Pop3Folder {
     private String name;
     private int messageCount;
     private Pop3Connection connection;
+    private final Logger logger;
 
-    Pop3Folder(Pop3Store pop3Store, String name) {
+    Pop3Folder(Pop3Store pop3Store, String name, Logger logger) {
         super();
         this.pop3Store = pop3Store;
         this.name = name;
+        this.logger = logger;
     }
 
     public synchronized void open() throws MessagingException {
@@ -175,7 +177,7 @@ public class Pop3Folder {
                     // response = "+OK msgNum msgUid"
                     String[] uidParts = response.split(" +");
                     if (uidParts.length < 3 || !"+OK".equals(uidParts[0])) {
-                        Log.e(TAG, "ERR response: %s", response);
+                        logger.error(TAG, null, () -> "ERR response: " + response);
                         return;
                     }
                     String msgUid = uidParts[2];
@@ -235,7 +237,7 @@ public class Pop3Folder {
         for (String uid : uids) {
             if (uidToMsgMap.get(uid) == null) {
                 if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3) {
-                    Log.d(TAG, "Need to index UID %s", uid);
+                    logger.debug(TAG, null, () -> "Need to index UID " + uid);
                 }
                 unindexedUids.add(uid);
             }
@@ -262,7 +264,7 @@ public class Pop3Folder {
                 String msgUid = uidParts[1];
                 if (unindexedUids.contains(msgUid)) {
                     if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3) {
-                        Log.d(TAG, "Got msgNum %d for UID %s", msgNum, msgUid);
+                        logger.debug(TAG, null, () -> "Got msgNum " + msgNum + " for UID " + msgUid);
                     }
 
                     Pop3Message message = uidToMsgMap.get(msgUid);
@@ -277,7 +279,7 @@ public class Pop3Folder {
 
     private void indexMessage(int msgNum, Pop3Message message) {
         if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3) {
-            Log.d(TAG, "Adding index for UID %s to msgNum %d", message.getUid(), msgNum);
+            logger.debug(TAG, null, () -> "Adding index for UID " + message.getUid() + " to msgNum " + msgNum);
         }
         msgNumToMsgMap.put(msgNum, message);
         uidToMsgMap.put(message.getUid(), message);
@@ -419,7 +421,7 @@ public class Pop3Folder {
         if (lines != -1 && (!connection.isTopNotAdvertised() || connection.supportsTop())) {
             try {
                 if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3 && !connection.supportsTop()) {
-                    Log.d(TAG, "This server doesn't support the CAPA command. " +
+                    logger.debug(TAG, null, () -> "This server doesn't support the CAPA command. " +
                           "Checking to see if the TOP command is supported nevertheless.");
                 }
 
@@ -434,7 +436,7 @@ public class Pop3Folder {
                     throw e;
                 } else {
                     if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3) {
-                        Log.d(TAG, "The server really doesn't support the TOP " +
+                        logger.debug(TAG, null, () -> "The server really doesn't support the TOP " +
                               "command. Using RETR instead.");
                     }
 

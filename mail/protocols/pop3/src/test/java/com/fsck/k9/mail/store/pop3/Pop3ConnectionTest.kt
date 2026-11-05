@@ -23,9 +23,7 @@ import java.security.NoSuchAlgorithmException
 import javax.net.ssl.SSLException
 import net.thunderbird.core.common.exception.MessagingException
 import net.thunderbird.components.core.logging.testing.TestLogger
-import net.thunderbird.legacy.logging.Log
 import okio.ByteString.Companion.encodeUtf8
-import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
@@ -35,11 +33,6 @@ import org.mockito.kotlin.verifyNoInteractions
 
 class Pop3ConnectionTest {
     private val socketFactory = TestTrustedSocketFactory
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
 
     @Test
     fun `when TrustedSocketFactory throws wrapped CertificateChainException, open() should throw`() {
@@ -363,7 +356,7 @@ class Pop3ConnectionTest {
         settings: Pop3Settings,
         trustedSocketFactory: TrustedSocketFactory = socketFactory,
     ) {
-        val connection = Pop3Connection(settings, trustedSocketFactory)
+        val connection = Pop3Connection(settings, trustedSocketFactory, TestLogger())
         connection.open()
     }
 

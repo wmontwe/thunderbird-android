@@ -8,6 +8,7 @@ import com.fsck.k9.mail.store.pop3.Pop3Store
 import com.fsck.k9.mail.transport.smtp.SmtpTransport
 import net.thunderbird.backend.api.BackendFactory
 import net.thunderbird.backend.api.BackendStorageFactory
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.android.account.LegacyAccount
 import net.thunderbird.core.android.account.LegacyAccountManager
 import net.thunderbird.feature.account.AccountId
@@ -18,6 +19,7 @@ class DefaultPop3BackendFactory(
     private val accountManager: LegacyAccountManager,
     private val backendStorageFactory: BackendStorageFactory,
     private val trustedSocketFactory: TrustedSocketFactory,
+    private val logger: Logger,
 ) : Pop3BackendFactory {
 
     override fun createBackend(accountId: AccountId): Backend {
@@ -28,17 +30,17 @@ class DefaultPop3BackendFactory(
         val backendStorage = backendStorageFactory.createBackendStorage(accountId)
         val pop3Store = createPop3Store(account)
         val smtpTransport = createSmtpTransport(account)
-        return Pop3Backend(accountName, backendStorage, pop3Store, smtpTransport)
+        return Pop3Backend(accountName, backendStorage, pop3Store, smtpTransport, logger)
     }
 
     private fun createPop3Store(account: LegacyAccount): Pop3Store {
         val serverSettings = account.incomingServerSettings
-        return Pop3Store(serverSettings, trustedSocketFactory)
+        return Pop3Store(serverSettings, trustedSocketFactory, logger)
     }
 
     private fun createSmtpTransport(account: LegacyAccount): SmtpTransport {
         val serverSettings = account.outgoingServerSettings
         val oauth2TokenProvider: OAuth2TokenProvider? = null
-        return SmtpTransport(serverSettings, trustedSocketFactory, oauth2TokenProvider)
+        return SmtpTransport(serverSettings, trustedSocketFactory, oauth2TokenProvider, logger)
     }
 }

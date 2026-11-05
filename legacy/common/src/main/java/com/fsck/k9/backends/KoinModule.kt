@@ -30,6 +30,7 @@ val backendsModule = module {
             context = get(),
             clientInfoAppName = get(named("ClientInfoAppName")),
             clientInfoAppVersion = get(named("ClientInfoAppVersion")),
+            logger = get(),
         )
     }
     single<SystemAlarmManager> { AndroidAlarmManager(context = get(), alarmManager = get()) }
@@ -39,6 +40,7 @@ val backendsModule = module {
             accountManager = get(),
             backendStorageFactory = get(),
             trustedSocketFactory = get(),
+            logger = get(),
         )
     }
     single<OAuth2TokenProviderFactory> { RealOAuth2TokenProviderFactory(context = get()) }

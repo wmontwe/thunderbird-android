@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import net.thunderbird.backend.api.BackendFactory
 import net.thunderbird.backend.api.BackendStorageFactory
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.android.account.LegacyAccount
 import net.thunderbird.core.android.account.LegacyAccountManager
 import net.thunderbird.feature.account.AccountId
@@ -33,6 +34,7 @@ class DefaultImapBackendFactory(
     private val context: Context,
     private val clientInfoAppName: String,
     private val clientInfoAppVersion: String,
+    private val logger: Logger,
 ) : ImapBackendFactory {
     override fun createBackend(accountId: AccountId): Backend {
         val account = accountManager.findById(accountId) ?: error("Account not found: $accountId")
@@ -51,6 +53,7 @@ class DefaultImapBackendFactory(
             idleRefreshManager,
             pushConfigProvider,
             smtpTransport,
+            logger,
         )
     }
 
@@ -84,7 +87,7 @@ class DefaultImapBackendFactory(
             null
         }
 
-        return SmtpTransport(serverSettings, trustedSocketFactory, oauth2TokenProvider)
+        return SmtpTransport(serverSettings, trustedSocketFactory, oauth2TokenProvider, logger)
     }
 
     private fun createOAuth2TokenProvider(accountId: AccountId): RealOAuth2TokenProvider {

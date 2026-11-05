@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.Flag
 import net.thunderbird.feature.mail.folder.api.FolderPathDelimiter
 
@@ -28,14 +29,15 @@ class ImapBackend(
     private val idleRefreshManager: IdleRefreshManager,
     private val pushConfigProvider: ImapPushConfigProvider,
     private val smtpTransport: SmtpTransport,
+    private val logger: Logger,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : Backend {
-    private val imapSync = ImapSync(accountName, backendStorage, imapStore)
-    private val commandRefreshFolderList = CommandRefreshFolderList(backendStorage, imapStore)
+    private val imapSync = ImapSync(accountName, backendStorage, imapStore, logger)
+    private val commandRefreshFolderList = CommandRefreshFolderList(backendStorage, imapStore, logger)
     private val commandSetFlag = CommandSetFlag(imapStore)
     private val commandMarkAllAsRead = CommandMarkAllAsRead(imapStore)
-    private val commandExpunge = CommandExpunge(imapStore)
-    private val commandMoveOrCopyMessages = CommandMoveOrCopyMessages(imapStore)
+    private val commandExpunge = CommandExpunge(imapStore, logger)
+    private val commandMoveOrCopyMessages = CommandMoveOrCopyMessages(imapStore, logger)
     private val commandDelete = CommandDelete(imapStore)
     private val commandDeleteAll = CommandDeleteAll(imapStore)
     private val commandSearch = CommandSearch(imapStore)
@@ -176,6 +178,14 @@ class ImapBackend(
     }
 
     override fun createPusher(callback: BackendPusherCallback): BackendPusher {
-        return ImapBackendPusher(imapStore, powerManager, idleRefreshManager, pushConfigProvider, callback, accountName)
+        return ImapBackendPusher(
+            imapStore,
+            powerManager,
+            idleRefreshManager,
+            pushConfigProvider,
+            callback,
+            accountName,
+            logger,
+        )
     }
 }

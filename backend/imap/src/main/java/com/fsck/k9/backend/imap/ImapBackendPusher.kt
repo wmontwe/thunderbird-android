@@ -14,8 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.exception.MessagingException
-import net.thunderbird.legacy.logging.Log
 
 private const val TAG = "ImapBackendPusher"
 
@@ -32,6 +32,7 @@ internal class ImapBackendPusher(
     private val pushConfigProvider: ImapPushConfigProvider,
     private val callback: BackendPusherCallback,
     private val accountName: String,
+    private val logger: Logger,
     backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : BackendPusher, ImapPusherCallback {
     private val coroutineScope = CoroutineScope(backgroundDispatcher)
@@ -85,11 +86,11 @@ internal class ImapBackendPusher(
     }
 
     private fun updateFolders(folderServerIds: Collection<String>, maxPushFolders: Int) {
-        Log.v(TAG, "ImapBackendPusher.updateFolders(): %s", folderServerIds)
+        logger.verbose(tag = TAG) { "ImapBackendPusher.updateFolders(): $folderServerIds" }
 
         val pushFolderServerIds = if (folderServerIds.size > maxPushFolders) {
             folderServerIds.take(maxPushFolders).also { pushFolderServerIds ->
-                Log.v(TAG, "..limiting Push to %d folders: %s", maxPushFolders, pushFolderServerIds)
+                logger.verbose(tag = TAG) { "..limiting Push to $maxPushFolders folders: $pushFolderServerIds" }
             }
         } else {
             folderServerIds
@@ -133,7 +134,7 @@ internal class ImapBackendPusher(
     }
 
     override fun stop() {
-        Log.v(TAG, "ImapBackendPusher.stop()")
+        logger.verbose(tag = TAG) { "ImapBackendPusher.stop()" }
 
         coroutineScope.cancel()
 
@@ -153,7 +154,7 @@ internal class ImapBackendPusher(
     }
 
     override fun reconnect() {
-        Log.v(TAG, "ImapBackendPusher.reconnect()")
+        logger.verbose(tag = TAG) { "ImapBackendPusher.reconnect()" }
 
         synchronized(lock) {
             for (pushFolder in pushFolders.values) {
@@ -181,6 +182,7 @@ internal class ImapBackendPusher(
             accountName = accountName,
             folderServerId = folderServerId,
             idleRefreshTimeoutProvider = idleRefreshTimeoutProvider,
+            logger = logger,
         )
     }
 
@@ -195,19 +197,21 @@ internal class ImapBackendPusher(
 
             when (exception) {
                 is AuthenticationFailedException -> {
-                    Log.v(TAG, exception, "Authentication failure when attempting to use IDLE")
+                    logger.verbose(tag = TAG, throwable = exception) {
+                        "Authentication failure when attempting to use IDLE"
+                    }
                     // TODO: This could be happening because of too many connections to the host. Ideally we'd want to
                     //  detect this case and use a lower timeout.
 
                     startRetryTimer(folderServerId, UNEXPECTED_ERROR_TIMEOUT)
                 }
                 is IOException -> {
-                    Log.v(TAG, exception, "I/O error while trying to use IDLE")
+                    logger.verbose(tag = TAG, throwable = exception) { "I/O error while trying to use IDLE" }
 
                     startRetryTimer(folderServerId, IO_ERROR_TIMEOUT)
                 }
                 is MessagingException -> {
-                    Log.v(TAG, exception, "MessagingException")
+                    logger.verbose(tag = TAG, throwable = exception) { "MessagingException" }
 
                     if (exception.isPermanentFailure) {
                         startRetryTimer(folderServerId, UNEXPECTED_ERROR_TIMEOUT)
@@ -216,7 +220,7 @@ internal class ImapBackendPusher(
                     }
                 }
                 else -> {
-                    Log.v(TAG, exception, "Unexpected error")
+                    logger.verbose(tag = TAG, throwable = exception) { "Unexpected error" }
                     startRetryTimer(folderServerId, UNEXPECTED_ERROR_TIMEOUT)
                 }
             }
@@ -234,12 +238,12 @@ internal class ImapBackendPusher(
     }
 
     private fun startRetryTimer(folderServerId: String, timeout: Long) {
-        Log.v(TAG, "ImapBackendPusher for folder %s sleeping for %d ms", folderServerId, timeout)
+        logger.verbose(tag = TAG) { "ImapBackendPusher for folder $folderServerId sleeping for $timeout ms" }
         pushFolderSleeping[folderServerId] = idleRefreshManager.startTimer(timeout, ::restartFolderPushers)
     }
 
     private fun cancelRetryTimer(folderServerId: String) {
-        Log.v(TAG, "Canceling ImapBackendPusher retry timer for folder %s", folderServerId)
+        logger.verbose(tag = TAG) { "Canceling ImapBackendPusher retry timer for folder $folderServerId" }
         pushFolderSleeping.remove(folderServerId)?.cancel()
     }
 
@@ -248,7 +252,7 @@ internal class ImapBackendPusher(
     }
 
     private fun restartFolderPushers() {
-        Log.v(TAG, "Refreshing ImapBackendPusher (at least one retry timer has expired)")
+        logger.verbose(tag = TAG) { "Refreshing ImapBackendPusher (at least one retry timer has expired)" }
 
         updateFolders()
     }

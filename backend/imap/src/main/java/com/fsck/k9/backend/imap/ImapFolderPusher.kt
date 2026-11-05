@@ -7,7 +7,7 @@ import com.fsck.k9.mail.store.imap.IdleResult
 import com.fsck.k9.mail.store.imap.ImapFolderIdler
 import com.fsck.k9.mail.store.imap.ImapStore
 import kotlin.concurrent.thread
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 
 private const val TAG = "ImapFolderPusher"
 
@@ -22,6 +22,7 @@ class ImapFolderPusher(
     private val accountName: String,
     private val folderServerId: String,
     private val idleRefreshTimeoutProvider: IdleRefreshTimeoutProvider,
+    private val logger: Logger,
 ) {
     @Volatile
     private var folderIdler: ImapFolderIdler? = null
@@ -30,25 +31,25 @@ class ImapFolderPusher(
     private var stopPushing = false
 
     fun start() {
-        Log.v(TAG, "Starting ImapFolderPusher for %s / %s", accountName, folderServerId)
+        logger.verbose(tag = TAG) { "Starting ImapFolderPusher for $accountName / $folderServerId" }
 
         thread(name = "ImapFolderPusher-$accountName-$folderServerId") {
-            Log.v(TAG, "Starting ImapFolderPusher thread for %s / %s", accountName, folderServerId)
+            logger.verbose(tag = TAG) { "Starting ImapFolderPusher thread for $accountName / $folderServerId" }
 
             runPushLoop()
 
-            Log.v(TAG, "Exiting ImapFolderPusher thread for %s / %s", accountName, folderServerId)
+            logger.verbose(tag = TAG) { "Exiting ImapFolderPusher thread for $accountName / $folderServerId" }
         }
     }
 
     fun refresh() {
-        Log.v(TAG, "Refreshing ImapFolderPusher for %s / %s", accountName, folderServerId)
+        logger.verbose(tag = TAG) { "Refreshing ImapFolderPusher for $accountName / $folderServerId" }
 
         folderIdler?.refresh()
     }
 
     fun stop() {
-        Log.v(TAG, "Stopping ImapFolderPusher for %s / %s", accountName, folderServerId)
+        logger.verbose(tag = TAG) { "Stopping ImapFolderPusher for $accountName / $folderServerId" }
 
         stopPushing = true
         folderIdler?.stop()
@@ -88,7 +89,7 @@ class ImapFolderPusher(
                 }
             }
         } catch (e: Exception) {
-            Log.v(TAG, e, "Exception in ImapFolderPusher")
+            logger.verbose(tag = TAG, throwable = e) { "Exception in ImapFolderPusher" }
 
             this.folderIdler = null
             callback.onPushError(folderServerId, e)

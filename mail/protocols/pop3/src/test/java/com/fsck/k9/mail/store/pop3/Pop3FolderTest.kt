@@ -15,6 +15,7 @@ import com.fsck.k9.mail.testing.crlf
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.exception.MessagingException
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +36,7 @@ class Pop3FolderTest {
         on { createConnection() } doReturn connection
     }
     private val messageRetrievalListener = mock<MessageRetrievalListener<Pop3Message>>()
-    private val folder = Pop3Folder(store, Pop3Folder.INBOX)
+    private val folder = Pop3Folder(store, Pop3Folder.INBOX, TestLogger())
 
     @Before
     fun setUp() {
@@ -44,14 +45,14 @@ class Pop3FolderTest {
 
     @Test(expected = MessagingException::class)
     fun `open() without Inbox folder should throw`() {
-        val folder = Pop3Folder(store, "TestFolder")
+        val folder = Pop3Folder(store, "TestFolder", TestLogger())
 
         folder.open()
     }
 
     @Test
     fun `open() without Inbox folder should not call Pop3Store_createConnection()`() {
-        val folder = Pop3Folder(store, "TestFolder")
+        val folder = Pop3Folder(store, "TestFolder", TestLogger())
 
         try {
             folder.open()

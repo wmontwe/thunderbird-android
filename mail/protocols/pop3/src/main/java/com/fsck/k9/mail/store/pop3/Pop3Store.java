@@ -9,7 +9,7 @@ import com.fsck.k9.mail.ConnectionSecurity;
 import net.thunderbird.core.common.exception.MessagingException;
 import com.fsck.k9.mail.ServerSettings;
 import com.fsck.k9.mail.ssl.TrustedSocketFactory;
-import net.thunderbird.legacy.logging.Log;
+import net.thunderbird.components.core.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -17,6 +17,7 @@ public class Pop3Store {
     private static final String TAG = "Pop3Store";
 
     private final TrustedSocketFactory trustedSocketFactory;
+    private final Logger logger;
     private final String host;
     private final int port;
     private final String username;
@@ -27,12 +28,13 @@ public class Pop3Store {
 
     private Map<String, Pop3Folder> mFolders = new HashMap<>();
 
-    public Pop3Store(ServerSettings serverSettings, TrustedSocketFactory socketFactory) {
+    public Pop3Store(ServerSettings serverSettings, TrustedSocketFactory socketFactory, Logger logger) {
         if (!serverSettings.type.equals("pop3")) {
             throw new IllegalArgumentException("Expected POP3 ServerSettings");
         }
 
         trustedSocketFactory = socketFactory;
+        this.logger = logger;
         host = serverSettings.host;
         port = serverSettings.port;
         connectionSecurity = serverSettings.connectionSecurity;
@@ -46,19 +48,19 @@ public class Pop3Store {
     public Pop3Folder getFolder(String name) {
         Pop3Folder folder = mFolders.get(name);
         if (folder == null) {
-            folder = new Pop3Folder(this, name);
+            folder = new Pop3Folder(this, name, logger);
             mFolders.put(folder.getServerId(), folder);
         }
         return folder;
     }
 
     public void checkSettings() throws MessagingException {
-        Pop3Folder folder = new Pop3Folder(this, Pop3Folder.INBOX);
+        Pop3Folder folder = new Pop3Folder(this, Pop3Folder.INBOX, logger);
         try {
             folder.open();
             folder.requestUidl();
         } catch (Exception e) {
-            Log.e(TAG, e, "Error while checking server settings");
+            logger.error(TAG, e, () -> "Error while checking server settings");
             throw e;
         } finally {
             folder.close();
@@ -66,7 +68,7 @@ public class Pop3Store {
     }
 
     public Pop3Connection createConnection() throws MessagingException {
-        return new Pop3Connection(new StorePop3Settings(), trustedSocketFactory);
+        return new Pop3Connection(new StorePop3Settings(), trustedSocketFactory, logger);
     }
 
     private class StorePop3Settings implements Pop3Settings {

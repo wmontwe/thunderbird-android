@@ -31,7 +31,7 @@ import com.fsck.k9.mail.filter.Hex;
 import com.fsck.k9.mail.ssl.CertificateChainExtractor;
 import com.fsck.k9.mail.ssl.TrustedSocketFactory;
 import javax.net.ssl.SSLException;
-import net.thunderbird.legacy.logging.Log;
+import net.thunderbird.components.core.logging.Logger;
 
 import static com.fsck.k9.mail.K9MailLib.DEBUG_PROTOCOL_POP3;
 import static com.fsck.k9.mail.NetworkTimeouts.SOCKET_CONNECT_TIMEOUT;
@@ -55,6 +55,7 @@ class Pop3Connection {
 
     private final Pop3Settings settings;
     private final TrustedSocketFactory trustedSocketFactory;
+    private final Logger logger;
     private Socket socket;
     private BufferedInputStream in;
     private BufferedOutputStream out;
@@ -68,9 +69,12 @@ class Pop3Connection {
     private boolean topNotAdvertised;
 
     Pop3Connection(Pop3Settings settings,
-            TrustedSocketFactory trustedSocketFactory) {
+            TrustedSocketFactory trustedSocketFactory,
+            Logger logger
+    ) {
         this.settings = settings;
         this.trustedSocketFactory = trustedSocketFactory;
+        this.logger = logger;
     }
 
     void open() throws MessagingException {
@@ -119,7 +123,7 @@ class Pop3Connection {
             try {
                 return connectToAddress(address);
             } catch (IOException e) {
-                Log.w(TAG, e, "Could not connect to %s", address);
+                logger.warn(TAG, e, () -> "Could not connect to " + address);
                 connectException = e;
             }
         }
@@ -130,7 +134,7 @@ class Pop3Connection {
     private Socket connectToAddress(InetAddress address)
             throws IOException, MessagingException, NoSuchAlgorithmException, KeyManagementException {
         if (K9MailLib.isDebug() && K9MailLib.DEBUG_PROTOCOL_POP3) {
-            Log.d(TAG, "Connecting to %s as %s", settings.getHost(), address);
+            logger.debug(TAG, null, () -> "Connecting to " + settings.getHost() + " as " + address);
         }
 
         InetSocketAddress socketAddress = new InetSocketAddress(address, settings.getPort());
@@ -343,9 +347,9 @@ class Pop3Connection {
         if (command != null) {
             if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3) {
                 if (sensitive && !K9MailLib.isDebugSensitive()) {
-                    Log.d(TAG, ">>> [Command Hidden, Enable Sensitive Debug Logging To Show]");
+                    logger.debug(TAG, null, () -> ">>> [Command Hidden, Enable Sensitive Debug Logging To Show]");
                 } else {
-                    Log.d(TAG, ">>> %s", command);
+                    logger.debug(TAG, null, () -> ">>> " + command);
                 }
             }
 
@@ -378,7 +382,7 @@ class Pop3Connection {
         } while ((d = in.read()) != -1);
         String ret = sb.toString();
         if (K9MailLib.isDebug() && DEBUG_PROTOCOL_POP3) {
-            Log.d(TAG, "<<< %s", ret);
+            logger.debug(TAG, null, () -> "<<< " + ret);
         }
         return ret;
     }

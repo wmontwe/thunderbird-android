@@ -7,7 +7,6 @@ import com.fsck.k9.mail.FolderType
 import com.fsck.k9.mail.store.imap.FolderListItem
 import com.fsck.k9.mail.store.imap.ImapStore
 import net.thunderbird.components.core.logging.Logger
-import net.thunderbird.legacy.logging.Log
 import net.thunderbird.feature.mail.folder.api.FolderPathDelimiter
 
 private const val TAG = "CommandRefreshFolderList"
@@ -15,7 +14,7 @@ private const val TAG = "CommandRefreshFolderList"
 internal class CommandRefreshFolderList(
     private val backendStorage: BackendStorage,
     private val imapStore: ImapStore,
-    private val logger: Logger = Log,
+    private val logger: Logger,
 ) {
 
     private val LegacyFolderListItem.normalizedServerId: String
