@@ -109,7 +109,7 @@ abstract class BaseApplication : Application(), WorkManagerConfiguration.Provide
     }
 
     private fun updateConfigurationWithLocale(configuration: Configuration, locale: Locale) {
-        Log.d(TAG, "Updating application configuration with locale '$locale'")
+        logger.debug(tag = TAG) { "Updating application configuration with locale '$locale'" }
 
         val newConfiguration = Configuration(configuration).apply {
             currentLocale = locale
@@ -133,7 +133,7 @@ abstract class BaseApplication : Application(), WorkManagerConfiguration.Provide
         if (appLanguageManagerInitialized) {
             appLanguageManager.getOverrideLocale()?.let { overrideLocale ->
                 if (resources.configuration.currentLocale != overrideLocale) {
-                    Log.w(TAG, "Resources configuration was reset. Re-applying locale override.")
+                    logger.warn(tag = TAG) { "Resources configuration was reset. Re-applying locale override." }
                     appLanguageManager.applyOverrideLocale()
                     applyOverrideLocaleToConfiguration()
                 }

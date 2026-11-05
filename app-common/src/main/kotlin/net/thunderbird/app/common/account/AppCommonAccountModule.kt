@@ -16,7 +16,6 @@ import net.thunderbird.app.common.account.data.LegacyAccountFolderUpdater
 import net.thunderbird.app.common.account.data.LegacyAccountLocalDataSource
 import net.thunderbird.app.common.account.data.LegacyInMemoryAccountCache
 import net.thunderbird.core.android.account.AccountDefaultsProvider
-import net.thunderbird.core.android.account.LegacyAccount
 import net.thunderbird.core.android.account.LegacyAccountManager
 import net.thunderbird.core.android.account.LegacyAccountRepository
 import net.thunderbird.feature.account.avatar.AvatarIcon
@@ -126,6 +125,7 @@ internal val appCommonAccountModule = module {
             featureFlagProvider = get(),
             getFolderIdsForTypeUseCase = get(),
             setPushForFolderUseCase = get(),
+            logger = get(),
         )
     }
 }

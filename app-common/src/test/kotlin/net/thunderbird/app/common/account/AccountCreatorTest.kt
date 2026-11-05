@@ -24,6 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.thunderbird.app.common.account.data.FakeAccountProfileRepository
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.android.account.AccountDefaultsProvider.Companion.UNASSIGNED_ACCOUNT_NUMBER
 import net.thunderbird.core.android.account.DeletePolicy
 import net.thunderbird.core.android.account.fake.FakeLegacyAccountManager
@@ -65,6 +66,7 @@ class AccountCreatorTest {
         getFolderIdsForTypeUseCase = mock(),
         setPushForFolderUseCase = mock(),
         coroutineDispatcher = UnconfinedTestDispatcher(),
+        logger = TestLogger(),
     )
 
     @Test

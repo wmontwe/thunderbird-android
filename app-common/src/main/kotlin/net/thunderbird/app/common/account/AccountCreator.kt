@@ -25,6 +25,7 @@ import com.fsck.k9.preferences.UnifiedInboxConfigurator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.android.account.AccountDefaultsProvider
 import net.thunderbird.core.android.account.LegacyAccount
 import net.thunderbird.core.android.account.LegacyAccountManager
@@ -37,7 +38,6 @@ import net.thunderbird.feature.account.storage.profile.AvatarDto
 import net.thunderbird.feature.account.storage.profile.AvatarTypeDto
 import net.thunderbird.feature.account.storage.profile.ProfileDto
 import net.thunderbird.feature.mail.folder.api.SpecialFolderSelection
-import net.thunderbird.legacy.logging.Log
 
 private const val TAG = "AccountCreator"
 
@@ -58,6 +58,7 @@ internal class AccountCreator(
     private val getFolderIdsForTypeUseCase: GetFolderIdsForTypeUseCase,
     private val setPushForFolderUseCase: SetPushForFolderUseCase,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val logger: Logger,
 ) : AccountSetupExternalContract.AccountCreator {
 
     @Suppress("TooGenericExceptionCaught")
@@ -65,7 +66,7 @@ internal class AccountCreator(
         return try {
             withContext(coroutineDispatcher) { AccountCreatorResult.Success(create(account)) }
         } catch (e: Exception) {
-            Log.e(TAG, e, "Error while creating new account")
+            logger.error(tag = TAG, throwable = e) { "Error while creating new account" }
 
             AccountCreatorResult.Error(e.message ?: "Unknown create account error")
         }
