@@ -13,6 +13,9 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import kotlin.time.measureTimedValue
 import kotlinx.coroutines.runBlocking
+import net.thunderbird.components.core.logging.DefaultLogger
+import net.thunderbird.components.core.logging.LogLevel
+import net.thunderbird.components.core.logging.console.ConsoleLogSink
 import net.thunderbird.core.common.mail.toUserEmailAddress
 import okhttp3.OkHttpClient.Builder
 
@@ -51,14 +54,15 @@ class AutoDiscoveryCli : CliktCommand() {
 
     private fun runAutoDiscovery(config: AutoconfigUrlConfig): AutoDiscoveryResult {
         val okHttpClient = Builder().build()
+        val logger = DefaultLogger(sink = ConsoleLogSink(level = LogLevel.WARN))
         try {
-            val providerDiscovery = createProviderAutoconfigDiscovery(okHttpClient, config)
-            val ispDbDiscovery = createIspDbAutoconfigDiscovery(okHttpClient)
-            val mxDiscovery = createMxLookupAutoconfigDiscovery(okHttpClient, config)
+            val providerDiscovery = createProviderAutoconfigDiscovery(okHttpClient, config, logger)
+            val ispDbDiscovery = createIspDbAutoconfigDiscovery(okHttpClient, logger)
+            val mxDiscovery = createMxLookupAutoconfigDiscovery(okHttpClient, config, logger)
 
             val runnables = listOf(providerDiscovery, ispDbDiscovery, mxDiscovery)
                 .flatMap { it.initDiscovery(emailAddress.toUserEmailAddress()) }
-            val serialRunner = SerialRunner(runnables)
+            val serialRunner = SerialRunner(runnables, logger)
 
             return runBlocking {
                 serialRunner.run()

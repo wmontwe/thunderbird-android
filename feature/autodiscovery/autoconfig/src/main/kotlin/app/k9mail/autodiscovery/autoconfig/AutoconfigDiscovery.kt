@@ -2,6 +2,7 @@ package app.k9mail.autodiscovery.autoconfig
 
 import app.k9mail.autodiscovery.api.AutoDiscovery
 import app.k9mail.autodiscovery.api.AutoDiscoveryRunnable
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.EmailAddress
 import net.thunderbird.core.common.mail.toDomain
 import okhttp3.OkHttpClient
@@ -27,23 +28,26 @@ class AutoconfigDiscovery internal constructor(
 fun createProviderAutoconfigDiscovery(
     okHttpClient: OkHttpClient,
     config: AutoconfigUrlConfig,
+    logger: Logger,
 ): AutoconfigDiscovery {
     val urlProvider = ProviderAutoconfigUrlProvider(config)
-    return createAutoconfigDiscovery(okHttpClient, urlProvider)
+    return createAutoconfigDiscovery(okHttpClient, urlProvider, logger)
 }
 
-fun createIspDbAutoconfigDiscovery(okHttpClient: OkHttpClient): AutoconfigDiscovery {
+fun createIspDbAutoconfigDiscovery(okHttpClient: OkHttpClient, logger: Logger): AutoconfigDiscovery {
     val urlProvider = IspDbAutoconfigUrlProvider()
-    return createAutoconfigDiscovery(okHttpClient, urlProvider)
+    return createAutoconfigDiscovery(okHttpClient, urlProvider, logger)
 }
 
 private fun createAutoconfigDiscovery(
     okHttpClient: OkHttpClient,
     urlProvider: AutoconfigUrlProvider,
+    logger: Logger,
 ): AutoconfigDiscovery {
     val autoconfigFetcher = RealAutoconfigFetcher(
         fetcher = OkHttpFetcher(okHttpClient),
-        parser = SuspendableAutoconfigParser(RealAutoconfigParser()),
+        parser = SuspendableAutoconfigParser(RealAutoconfigParser(logger)),
+        logger = logger,
     )
     return AutoconfigDiscovery(urlProvider, autoconfigFetcher)
 }

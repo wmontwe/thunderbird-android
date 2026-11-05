@@ -6,6 +6,7 @@ import app.k9mail.autodiscovery.autoconfig.AutoconfigUrlConfig
 import app.k9mail.autodiscovery.autoconfig.createIspDbAutoconfigDiscovery
 import app.k9mail.autodiscovery.autoconfig.createMxLookupAutoconfigDiscovery
 import app.k9mail.autodiscovery.autoconfig.createProviderAutoconfigDiscovery
+import net.thunderbird.components.core.logging.Logger
 import okhttp3.OkHttpClient
 
 class RealAutoDiscoveryRegistry(
@@ -22,19 +23,23 @@ class RealAutoDiscoveryRegistry(
 
         fun createDefaultAutoDiscoveries(
             okHttpClient: OkHttpClient,
+            logger: Logger,
             autoconfigUrlConfig: AutoconfigUrlConfig = defaultAutoconfigUrlConfig,
         ): List<AutoDiscovery> {
             return listOf(
                 createProviderAutoconfigDiscovery(
                     okHttpClient = okHttpClient,
                     config = autoconfigUrlConfig,
+                    logger = logger,
                 ),
                 createIspDbAutoconfigDiscovery(
                     okHttpClient = okHttpClient,
+                    logger = logger,
                 ),
                 createMxLookupAutoconfigDiscovery(
                     okHttpClient = okHttpClient,
                     config = autoconfigUrlConfig,
+                    logger = logger,
                 ),
             )
         }

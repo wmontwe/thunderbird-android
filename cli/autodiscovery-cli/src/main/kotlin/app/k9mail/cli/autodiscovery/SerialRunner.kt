@@ -6,14 +6,17 @@ import app.k9mail.autodiscovery.api.AutoDiscoveryResult.NoUsableSettingsFound
 import app.k9mail.autodiscovery.api.AutoDiscoveryResult.Settings
 import app.k9mail.autodiscovery.api.AutoDiscoveryResult.UnexpectedException
 import app.k9mail.autodiscovery.api.AutoDiscoveryRunnable
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 
 private const val TAG = "SerialRunner"
 
 /**
  * Run a list of [AutoDiscoveryRunnable] one after the other until one returns a [Settings] result.
  */
-class SerialRunner(private val runnables: List<AutoDiscoveryRunnable>) {
+class SerialRunner(
+    private val runnables: List<AutoDiscoveryRunnable>,
+    private val logger: Logger,
+) {
     suspend fun run(): AutoDiscoveryResult {
         var networkErrorCount = 0
         var networkError: NetworkError? = null
@@ -34,7 +37,7 @@ class SerialRunner(private val runnables: List<AutoDiscoveryRunnable>) {
                 NoUsableSettingsFound -> { }
 
                 is UnexpectedException -> {
-                    Log.w(TAG, discoveryResult.exception, "Unexpected exception")
+                    logger.warn(tag = TAG, throwable = discoveryResult.exception) { "Unexpected exception" }
                 }
             }
         }

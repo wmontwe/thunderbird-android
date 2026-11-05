@@ -13,13 +13,13 @@ import app.k9mail.autodiscovery.api.OutgoingServerSettings
 import app.k9mail.autodiscovery.api.SmtpServerSettings
 import java.io.InputStream
 import java.io.InputStreamReader
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.EmailAddress
 import net.thunderbird.core.common.net.HostNameUtils
 import net.thunderbird.core.common.net.Hostname
 import net.thunderbird.core.common.net.Port
 import net.thunderbird.core.common.net.toHostname
 import net.thunderbird.core.common.net.toPort
-import net.thunderbird.legacy.logging.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -34,10 +34,12 @@ private typealias ServerSettingsFactory<T> = (
     username: String,
 ) -> T
 
-internal class RealAutoconfigParser : AutoconfigParser {
+internal class RealAutoconfigParser(
+    private val logger: Logger,
+) : AutoconfigParser {
     override fun parseSettings(inputStream: InputStream, email: EmailAddress): AutoconfigParserResult {
         return try {
-            ClientConfigParser(inputStream, email).parse()
+            ClientConfigParser(inputStream, email, logger).parse()
         } catch (e: XmlPullParserException) {
             AutoconfigParserResult.ParserError(error = AutoconfigParserException("Error parsing Autoconfig XML", e))
         } catch (e: AutoconfigParserException) {
@@ -50,6 +52,7 @@ internal class RealAutoconfigParser : AutoconfigParser {
 private class ClientConfigParser(
     private val inputStream: InputStream,
     private val email: EmailAddress,
+    private val logger: Logger,
 ) {
     private val localPart = email.localPart
     private val domain = email.domain.normalized
@@ -166,7 +169,7 @@ private class ClientConfigParser(
     ): T? {
         val type = pullParser.getAttributeValue(null, "type")
         if (type != protocolType) {
-            Log.d(TAG, "Unsupported '%s[type]' value: '%s'", pullParser.name, type)
+            logger.debug(tag = TAG) { "Unsupported '${pullParser.name}[type]' value: '$type'" }
             skipElement()
             return null
         }
@@ -239,7 +242,7 @@ private class ClientConfigParser(
             "password-encrypted" -> PasswordEncrypted
 
             else -> {
-                Log.d(TAG, "Ignoring unknown 'authentication' value '$this'")
+                logger.debug(tag = TAG) { "Ignoring unknown 'authentication' value '$this'" }
                 null
             }
         }
@@ -293,7 +296,7 @@ private class ClientConfigParser(
     }
 
     private fun skipElement() {
-        Log.d(TAG, "Skipping element '%s'", pullParser.name)
+        logger.debug(tag = TAG) { "Skipping element '${pullParser.name}'" }
         readElement { /* Do nothing */ }
     }
 

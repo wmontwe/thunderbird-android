@@ -15,6 +15,7 @@ import app.k9mail.feature.account.setup.ui.options.display.DisplayOptionsContrac
 import app.k9mail.feature.account.setup.ui.options.sync.SyncOptionsContract
 import app.k9mail.feature.account.setup.ui.specialfolders.SpecialFoldersContract
 import com.fsck.k9.mail.oauth.AuthStateStorage
+import net.thunderbird.components.core.logging.Logger
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.test.KoinTest
@@ -43,6 +44,7 @@ class AccountSetupModuleKtTest : KoinTest {
                 Class.forName("net.openid.appauth.AppAuthConfiguration").kotlin,
                 InteractionMode::class,
                 SpecialFoldersContract.State::class,
+                Logger::class,
                 CreateAccountContract.State::class,
                 AccountSetupExternalContract.AccountOwnerNameProvider::class,
             ),

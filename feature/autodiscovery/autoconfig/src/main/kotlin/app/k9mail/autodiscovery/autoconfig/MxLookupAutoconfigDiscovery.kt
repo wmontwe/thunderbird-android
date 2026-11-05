@@ -6,10 +6,10 @@ import app.k9mail.autodiscovery.api.AutoDiscoveryResult.NoUsableSettingsFound
 import app.k9mail.autodiscovery.api.AutoDiscoveryResult.Settings
 import app.k9mail.autodiscovery.api.AutoDiscoveryRunnable
 import java.io.IOException
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.EmailAddress
 import net.thunderbird.core.common.mail.toDomain
 import net.thunderbird.core.common.net.Domain
-import net.thunderbird.legacy.logging.Log
 import okhttp3.OkHttpClient
 import org.minidns.dnsname.InvalidDnsNameException
 
@@ -21,6 +21,7 @@ class MxLookupAutoconfigDiscovery internal constructor(
     private val subDomainExtractor: SubDomainExtractor,
     private val urlProvider: AutoconfigUrlProvider,
     private val autoconfigFetcher: AutoconfigFetcher,
+    private val logger: Logger,
 ) : AutoDiscovery {
 
     override fun initDiscovery(email: EmailAddress): List<AutoDiscoveryRunnable> {
@@ -70,10 +71,10 @@ class MxLookupAutoconfigDiscovery internal constructor(
         return try {
             mxResolver.lookup(domain).takeIf { it.mxNames.isNotEmpty() }
         } catch (e: IOException) {
-            Log.d(TAG, e, "Failed to get MX record for domain: %s", domain.value)
+            logger.debug(tag = TAG, throwable = e) { "Failed to get MX record for domain: ${domain.value}" }
             null
         } catch (e: InvalidDnsNameException) {
-            Log.d(TAG, e, "Invalid DNS name for domain: %s", domain.value)
+            logger.debug(tag = TAG, throwable = e) { "Invalid DNS name for domain: ${domain.value}" }
             null
         }
     }
@@ -90,11 +91,13 @@ class MxLookupAutoconfigDiscovery internal constructor(
 fun createMxLookupAutoconfigDiscovery(
     okHttpClient: OkHttpClient,
     config: AutoconfigUrlConfig,
+    logger: Logger,
 ): MxLookupAutoconfigDiscovery {
     val baseDomainExtractor = OkHttpBaseDomainExtractor()
     val autoconfigFetcher = RealAutoconfigFetcher(
         fetcher = OkHttpFetcher(okHttpClient),
-        parser = SuspendableAutoconfigParser(RealAutoconfigParser()),
+        parser = SuspendableAutoconfigParser(RealAutoconfigParser(logger)),
+        logger = logger,
     )
     return MxLookupAutoconfigDiscovery(
         mxResolver = SuspendableMxResolver(MiniDnsMxResolver()),
@@ -102,5 +105,6 @@ fun createMxLookupAutoconfigDiscovery(
         subDomainExtractor = RealSubDomainExtractor(baseDomainExtractor),
         urlProvider = createPostMxLookupAutoconfigUrlProvider(config),
         autoconfigFetcher = autoconfigFetcher,
+        logger = logger,
     )
 }

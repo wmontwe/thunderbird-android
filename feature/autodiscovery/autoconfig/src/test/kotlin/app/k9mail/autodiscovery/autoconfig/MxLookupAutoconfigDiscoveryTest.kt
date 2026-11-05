@@ -8,6 +8,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.mail.toUserEmailAddress
 import net.thunderbird.core.common.net.toDomain
 
@@ -27,6 +28,7 @@ class MxLookupAutoconfigDiscoveryTest {
         subDomainExtractor = RealSubDomainExtractor(baseDomainExtractor),
         urlProvider = urlProvider,
         autoconfigFetcher = autoconfigFetcher,
+        logger = TestLogger(),
     )
 
     @Test

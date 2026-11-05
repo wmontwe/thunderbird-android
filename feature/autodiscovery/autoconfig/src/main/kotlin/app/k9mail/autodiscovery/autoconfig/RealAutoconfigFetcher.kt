@@ -6,8 +6,8 @@ import app.k9mail.autodiscovery.autoconfig.AutoconfigParserResult.Settings
 import app.k9mail.autodiscovery.autoconfig.HttpFetchResult.ErrorResponse
 import app.k9mail.autodiscovery.autoconfig.HttpFetchResult.SuccessResponse
 import java.io.IOException
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.EmailAddress
-import net.thunderbird.legacy.logging.Log
 import okhttp3.HttpUrl
 
 private const val TAG = "RealAutoconfigFetcher"
@@ -15,6 +15,7 @@ private const val TAG = "RealAutoconfigFetcher"
 internal class RealAutoconfigFetcher(
     private val fetcher: HttpFetcher,
     private val parser: SuspendableAutoconfigParser,
+    private val logger: Logger,
 ) : AutoconfigFetcher {
     override suspend fun fetchAutoconfig(autoconfigUrl: HttpUrl, email: EmailAddress): AutoDiscoveryResult {
         return try {
@@ -26,7 +27,7 @@ internal class RealAutoconfigFetcher(
                 is ErrorResponse -> AutoDiscoveryResult.NoUsableSettingsFound
             }
         } catch (e: IOException) {
-            Log.d(TAG, e, "Error fetching Autoconfig from URL: %s", autoconfigUrl)
+            logger.debug(tag = TAG, throwable = e) { "Error fetching Autoconfig from URL: $autoconfigUrl" }
             AutoDiscoveryResult.NetworkError(e)
         }
     }
@@ -52,7 +53,7 @@ internal class RealAutoconfigFetcher(
                 }
             }
         } catch (e: AutoconfigParserException) {
-            Log.d(TAG, e, "Failed to parse config from URL: %s", autoconfigUrl)
+            logger.debug(tag = TAG, throwable = e) { "Failed to parse config from URL: $autoconfigUrl" }
             AutoDiscoveryResult.NoUsableSettingsFound
         }
     }

@@ -20,19 +20,17 @@ import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.mail.toUserEmailAddress
 import net.thunderbird.core.common.net.toHostname
 import net.thunderbird.core.common.net.toPort
-import net.thunderbird.legacy.logging.Log
 import org.intellij.lang.annotations.Language
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Parser
-import org.junit.Before
 import org.junit.Test
 
 private const val PRINT_MODIFIED_XML = false
 
 class RealAutoconfigParserTest {
-    private val parser = RealAutoconfigParser()
+    private val parser = RealAutoconfigParser(logger = TestLogger())
 
     @Language("XML")
     private val minimalConfig =
@@ -84,11 +82,6 @@ class RealAutoconfigParserTest {
         """.trimIndent()
 
     private val irrelevantEmailAddress = "irrelevant@domain.example".toUserEmailAddress()
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
 
     @Test
     fun `minimal data`() {

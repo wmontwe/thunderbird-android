@@ -54,6 +54,7 @@ val featureAccountSetupModule: Module = module {
         RealAutoDiscoveryRegistry(
             autoDiscoveries = RealAutoDiscoveryRegistry.createDefaultAutoDiscoveries(
                 okHttpClient = get(),
+                logger = get(),
             ) + extraAutoDiscoveries,
         )
     }
