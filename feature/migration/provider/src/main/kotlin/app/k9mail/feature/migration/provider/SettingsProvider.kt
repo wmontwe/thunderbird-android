@@ -14,8 +14,8 @@ import com.fsck.k9.helper.mapToSet
 import com.fsck.k9.preferences.SettingsExporter
 import kotlin.concurrent.thread
 import kotlinx.coroutines.runBlocking
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.android.account.LegacyAccountManager
-import net.thunderbird.legacy.logging.Log
 import okio.ByteString.Companion.toByteString
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
@@ -32,6 +32,7 @@ private const val TAG = "SettingsProvider"
 class SettingsProvider : ContentProvider(), KoinComponent {
     private val accountManager: LegacyAccountManager by inject()
     private val settingsExporter: SettingsExporter by inject()
+    private val logger: Logger by inject()
 
     override fun onCreate(): Boolean {
         return true
@@ -43,7 +44,7 @@ class SettingsProvider : ContentProvider(), KoinComponent {
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         if (!isTrustedCaller()) {
-            Log.d(TAG, "Caller must be in the allowlist")
+            logger.debug(tag = TAG) { "Caller must be in the allowlist" }
             return null
         }
 
@@ -132,16 +133,18 @@ class SettingsProvider : ContentProvider(), KoinComponent {
         }
 
         if (callerSignature == null) {
-            Log.v(TAG, "Couldn't retrieve caller signature")
+            logger.verbose(tag = TAG) { "Couldn't retrieve caller signature" }
             return false
         }
 
         val callerSignatureHash = callerSignature.toByteArray().toByteString().sha256().hex()
         val result = callerSignatureHash in expectedHashes
         if (result) {
-            Log.d(TAG, "Caller %s signature fingerprint matches %s", callerPackage, callerSignatureHash)
+            logger.debug(tag = TAG) { "Caller $callerPackage signature fingerprint matches $callerSignatureHash" }
         } else {
-            Log.d(TAG, "Failed! Signature mismatch for calling package %s (%s)", callerPackage, callerSignatureHash)
+            logger.debug(tag = TAG) {
+                "Failed! Signature mismatch for calling package $callerPackage ($callerSignatureHash)"
+            }
         }
 
         return result

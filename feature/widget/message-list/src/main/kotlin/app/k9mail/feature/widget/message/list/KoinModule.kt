@@ -3,7 +3,14 @@ package app.k9mail.feature.widget.message.list
 import org.koin.dsl.module
 
 val messageListWidgetModule = module {
-    single { MessageListWidgetManager(context = get(), messageListRepository = get(), config = get()) }
+    single {
+        MessageListWidgetManager(
+            context = get(),
+            messageListRepository = get(),
+            config = get(),
+            logger = get(),
+        )
+    }
     factory {
         MessageListLoader(
             accountManager = get(),

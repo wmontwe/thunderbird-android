@@ -11,7 +11,7 @@ import org.junit.Before
 
 @Suppress("LongMethod")
 class QrCodePayloadParserTest {
-    private val parser = QrCodePayloadParser(QrCodePayloadAdapter())
+    private val parser = QrCodePayloadParser(QrCodePayloadAdapter(logger = TestLogger()))
 
     @Before
     fun setUp() {

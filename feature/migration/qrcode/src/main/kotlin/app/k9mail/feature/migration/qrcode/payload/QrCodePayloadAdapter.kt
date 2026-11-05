@@ -3,18 +3,20 @@ package app.k9mail.feature.migration.qrcode.payload
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 
 private const val TAG = "QrCodePayloadAdapter"
 
-internal class QrCodePayloadAdapter : JsonAdapter<QrCodeData>() {
+internal class QrCodePayloadAdapter(
+    private val logger: Logger,
+) : JsonAdapter<QrCodeData>() {
     override fun fromJson(jsonReader: JsonReader): QrCodeData? {
         jsonReader.beginArray()
 
         val version = jsonReader.nextInt()
         if (version != 1) {
             // We don't even attempt to read something that is newer than version 1.
-            Log.d(TAG, "Unsupported version: %s", version)
+            logger.debug(tag = TAG) { "Unsupported version: $version" }
             return null
         }
 

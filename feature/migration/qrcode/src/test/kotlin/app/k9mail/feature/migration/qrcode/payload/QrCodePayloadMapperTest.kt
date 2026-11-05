@@ -8,13 +8,14 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.prop
 import kotlin.test.Test
+import net.thunderbird.components.core.logging.testing.TestLogger
 import net.thunderbird.core.common.mail.toUserEmailAddress
 import net.thunderbird.core.common.net.toHostname
 import net.thunderbird.core.common.net.toPort
 
 class QrCodePayloadMapperTest {
     private val mapper = QrCodePayloadMapper(
-        qrCodePayloadValidator = QrCodePayloadValidator(),
+        qrCodePayloadValidator = QrCodePayloadValidator(logger = TestLogger()),
         deletePolicyProvider = FakeDeletePolicyProvider(),
     )
 

@@ -9,8 +9,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.components.core.outcome.Outcome
-import net.thunderbird.legacy.logging.Log
+import org.koin.compose.koinInject
 
 private const val TAG = "BiometricAuthenticator"
 
@@ -28,6 +29,7 @@ class BiometricAuthenticator(
     private val activity: FragmentActivity,
     private val title: String,
     private val subtitle: String,
+    private val logger: Logger,
 ) : Authenticator {
 
     @Suppress("TooGenericExceptionCaught")
@@ -65,7 +67,7 @@ class BiometricAuthenticator(
             try {
                 BiometricPrompt(activity, executor, authenticationCallback).authenticate(promptInfo)
             } catch (e: Exception) {
-                Log.e(TAG, "BiometricAuthenticator", "Failed to start biometric authentication", e)
+                logger.error(tag = TAG, throwable = e) { "Failed to start biometric authentication" }
                 if (continuation.isActive) continuation.resume(Outcome.Failure(AuthenticationError.UnableToStart))
             }
 
@@ -86,18 +88,19 @@ fun rememberBiometricAuthenticator(
     title: String,
     subtitle: String,
 ): Authenticator {
-    val activity = LocalActivity.current
-    return remember(activity, title, subtitle) {
-        val fragmentActivity = activity as? FragmentActivity
-        if (fragmentActivity != null) {
-            BiometricAuthenticator(
-                activity = fragmentActivity,
-                title = title,
-                subtitle = subtitle,
-            )
-        } else {
-            // Fallback for previews and other non-FragmentActivity contexts
-            Authenticator { Outcome.Failure(AuthenticationError.UnableToStart) }
-        }
+    val fragmentActivity = LocalActivity.current as? FragmentActivity
+    if (fragmentActivity == null) {
+        // Fallback for previews and other non-FragmentActivity contexts, which also have no Koin to inject from
+        return remember { Authenticator { Outcome.Failure(AuthenticationError.UnableToStart) } }
+    }
+
+    val logger: Logger = koinInject()
+    return remember(fragmentActivity, title, subtitle, logger) {
+        BiometricAuthenticator(
+            activity = fragmentActivity,
+            title = title,
+            subtitle = subtitle,
+            logger = logger,
+        )
     }
 }

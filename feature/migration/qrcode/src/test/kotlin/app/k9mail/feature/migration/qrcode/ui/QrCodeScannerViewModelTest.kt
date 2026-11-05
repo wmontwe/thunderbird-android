@@ -207,9 +207,9 @@ private class QrCodeScannerScreenRobot(
     private val qrCodeSettingsWriter = FakeQrCodeSettingsWriter()
     private val viewModel = QrCodeScannerViewModel(
         qrCodePayloadReader = QrCodePayloadReader(
-            parser = QrCodePayloadParser(QrCodePayloadAdapter()),
+            parser = QrCodePayloadParser(QrCodePayloadAdapter(logger = TestLogger())),
             mapper = QrCodePayloadMapper(
-                qrCodePayloadValidator = QrCodePayloadValidator(),
+                qrCodePayloadValidator = QrCodePayloadValidator(logger = TestLogger()),
                 deletePolicyProvider = FakeDeletePolicyProvider(),
             ),
         ),

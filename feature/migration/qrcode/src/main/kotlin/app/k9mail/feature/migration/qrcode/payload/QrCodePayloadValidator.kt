@@ -1,18 +1,20 @@
 package app.k9mail.feature.migration.qrcode.payload
 
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.EmailAddressParserException
 import net.thunderbird.core.common.mail.toUserEmailAddress
 import net.thunderbird.core.common.net.toHostname
 import net.thunderbird.core.common.net.toPort
-import net.thunderbird.legacy.logging.Log
 
 private const val TAG = "QrCodePayloadValidator"
 
 @Suppress("TooManyFunctions")
-internal class QrCodePayloadValidator {
+internal class QrCodePayloadValidator(
+    private val logger: Logger,
+) {
     fun isValid(data: QrCodeData): Boolean {
         if (data.version != 1) {
-            Log.d(TAG, "Unsupported version: %s", data.version)
+            logger.debug(tag = TAG) { "Unsupported version: ${data.version}" }
             return false
         }
 
@@ -20,7 +22,7 @@ internal class QrCodePayloadValidator {
             validateData(data)
             true
         } catch (e: IllegalArgumentException) {
-            Log.d(TAG, e, "QR code payload failed validation")
+            logger.debug(tag = TAG, throwable = e) { "QR code payload failed validation" }
             false
         }
     }

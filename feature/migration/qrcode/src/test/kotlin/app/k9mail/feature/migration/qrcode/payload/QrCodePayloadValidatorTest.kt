@@ -9,7 +9,7 @@ import net.thunderbird.legacy.logging.Log
 import org.junit.Before
 
 class QrCodePayloadValidatorTest {
-    private val validator = QrCodePayloadValidator()
+    private val validator = QrCodePayloadValidator(logger = TestLogger())
 
     @Before
     fun setUp() {

@@ -9,6 +9,7 @@ import com.fsck.k9.backend.api.SyncListener
 import com.fsck.k9.mail.BodyFactory
 import com.fsck.k9.mail.Message
 import com.fsck.k9.mail.Part
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.mail.Flag
 import net.thunderbird.feature.mail.folder.api.FolderPathDelimiter
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -21,6 +22,7 @@ class JmapBackend(
     backendStorage: BackendStorage,
     okHttpClient: OkHttpClient,
     config: JmapConfig,
+    logger: Logger,
 ) : Backend {
     private val httpAuthentication = config.toHttpAuthentication()
     private val jmapClient = createJmapClient(config, httpAuthentication)
@@ -28,7 +30,7 @@ class JmapBackend(
     private val commandRefreshFolderList = CommandRefreshFolderList(backendStorage, jmapClient, accountId)
     private val commandSync = CommandSync(backendStorage, jmapClient, okHttpClient, accountId, httpAuthentication)
     private val commandSetFlag = CommandSetFlag(jmapClient, accountId)
-    private val commandDelete = CommandDelete(jmapClient, accountId)
+    private val commandDelete = CommandDelete(jmapClient, accountId, logger)
     private val commandMove = CommandMove(jmapClient, accountId)
     private val commandUpload = CommandUpload(jmapClient, okHttpClient, httpAuthentication, accountId)
     override val supportsFlags = true

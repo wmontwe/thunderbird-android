@@ -22,9 +22,9 @@ val qrCodeModule = module {
         )
     }
 
-    factory { QrCodePayloadAdapter() }
+    factory { QrCodePayloadAdapter(logger = get()) }
     factory { QrCodePayloadParser(qrCodePayloadAdapter = get()) }
-    factory { QrCodePayloadValidator() }
+    factory { QrCodePayloadValidator(logger = get()) }
     factory {
         QrCodePayloadMapper(
             qrCodePayloadValidator = get(),

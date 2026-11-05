@@ -7,7 +7,7 @@ import android.content.Intent
 import app.k9mail.legacy.mailstore.MessageListChangedListener
 import app.k9mail.legacy.mailstore.MessageListRepository
 import com.fsck.k9.core.BuildConfig
-import net.thunderbird.legacy.logging.Log
+import net.thunderbird.components.core.logging.Logger
 
 private const val TAG = "MessageListWidgetManager"
 
@@ -15,6 +15,7 @@ class MessageListWidgetManager(
     private val context: Context,
     private val messageListRepository: MessageListRepository,
     private val config: MessageListWidgetConfig,
+    private val logger: Logger,
 ) {
     private var appWidgetManager: AppWidgetManager? = null
 
@@ -26,7 +27,7 @@ class MessageListWidgetManager(
     fun init() {
         appWidgetManager = AppWidgetManager.getInstance(context)
         if (appWidgetManager == null) {
-            Log.v(TAG, "Message list widget is not supported on this device.")
+            logger.verbose(tag = TAG) { "Message list widget is not supported on this device." }
         }
 
         if (isAtLeastOneMessageListWidgetAdded()) {
@@ -43,19 +44,19 @@ class MessageListWidgetManager(
             if (BuildConfig.DEBUG) {
                 throw e
             } else {
-                Log.e(TAG, e, "Error while updating message list widget")
+                logger.error(tag = TAG, throwable = e) { "Error while updating message list widget" }
             }
         }
     }
 
     internal fun onWidgetAdded() {
-        Log.v(TAG, "Message list widget added")
+        logger.verbose(tag = TAG) { "Message list widget added" }
 
         registerMessageListChangedListener()
     }
 
     internal fun onWidgetRemoved() {
-        Log.v(TAG, "Message list widget removed")
+        logger.verbose(tag = TAG) { "Message list widget removed" }
 
         if (!isAtLeastOneMessageListWidgetAdded()) {
             unregisterMessageListChangedListener()
@@ -68,7 +69,7 @@ class MessageListWidgetManager(
             listenerAdded = true
             messageListRepository.addListener(listener)
 
-            Log.v(TAG, "Message list widget is now listening for message list changes…")
+            logger.verbose(tag = TAG) { "Message list widget is now listening for message list changes…" }
         }
     }
 
@@ -78,7 +79,7 @@ class MessageListWidgetManager(
             listenerAdded = false
             messageListRepository.removeListener(listener)
 
-            Log.v(TAG, "Message list widget stopped listening for message list changes.")
+            logger.verbose(tag = TAG) { "Message list widget stopped listening for message list changes." }
         }
     }
 
