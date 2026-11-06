@@ -19,9 +19,7 @@ import com.fsck.k9.mail.transport.mockServer.MockSmtpServer
 import java.net.UnknownHostException
 import kotlin.test.Test
 import net.thunderbird.components.core.logging.testing.TestLogger
-import net.thunderbird.legacy.logging.Log
 import okio.ByteString.Companion.encodeUtf8
-import org.junit.Before
 
 private const val USERNAME = "user"
 private const val PASSWORD = "password"
@@ -35,12 +33,8 @@ class SmtpServerSettingsValidatorTest {
     private val serverSettingsValidator = SmtpServerSettingsValidator(
         trustedSocketFactory = trustedSocketFactory,
         oAuth2TokenProviderFactory = null,
+        logger = TestLogger(),
     )
-
-    @Before
-    fun setUp() {
-        Log.logger = TestLogger()
-    }
 
     @Test
     fun `valid server settings with password should return Success`() {
@@ -83,6 +77,7 @@ class SmtpServerSettingsValidatorTest {
                 assertThat(authStateStorage.getAuthorizationState()).isEqualTo(AUTHORIZATION_STATE)
                 FakeOAuth2TokenProvider()
             },
+            logger = TestLogger(),
         )
         val server = MockSmtpServer().apply {
             output("220 localhost Simple Mail Transfer Service Ready")
@@ -126,6 +121,7 @@ class SmtpServerSettingsValidatorTest {
                 assertThat(authStateStorage.getAuthorizationState()).isEqualTo(AUTHORIZATION_STATE)
                 FakeOAuth2TokenProvider(usernames = setOf(expectedUser))
             },
+            logger = TestLogger(),
         )
 
         val server = MockSmtpServer().apply {

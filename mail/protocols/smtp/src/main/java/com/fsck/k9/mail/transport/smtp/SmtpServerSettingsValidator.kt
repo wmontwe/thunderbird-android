@@ -15,11 +15,13 @@ import com.fsck.k9.mail.server.ServerSettingsValidationResult.ClientCertificateE
 import com.fsck.k9.mail.server.ServerSettingsValidator
 import com.fsck.k9.mail.ssl.TrustedSocketFactory
 import java.io.IOException
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.exception.MessagingException
 
 class SmtpServerSettingsValidator(
     private val trustedSocketFactory: TrustedSocketFactory,
     private val oAuth2TokenProviderFactory: OAuth2TokenProviderFactory?,
+    private val logger: Logger,
 ) : ServerSettingsValidator {
 
     @Suppress("TooGenericExceptionCaught")
@@ -28,7 +30,7 @@ class SmtpServerSettingsValidator(
         authStateStorage: AuthStateStorage?,
     ): ServerSettingsValidationResult {
         val oAuth2TokenProvider = createOAuth2TokenProviderOrNull(authStateStorage)
-        val smtpTransport = SmtpTransport(serverSettings, trustedSocketFactory, oAuth2TokenProvider)
+        val smtpTransport = SmtpTransport(serverSettings, trustedSocketFactory, oAuth2TokenProvider, logger)
 
         return try {
             smtpTransport.checkSettings()

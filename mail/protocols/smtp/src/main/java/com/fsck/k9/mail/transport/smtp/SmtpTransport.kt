@@ -35,8 +35,8 @@ import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import java.util.Locale
 import javax.net.ssl.SSLException
+import net.thunderbird.components.core.logging.Logger
 import net.thunderbird.core.common.exception.MessagingException
-import net.thunderbird.legacy.logging.Log
 import org.apache.commons.io.IOUtils
 import org.jetbrains.annotations.VisibleForTesting
 
@@ -55,6 +55,7 @@ class SmtpTransport(
     serverSettings: ServerSettings,
     private val trustedSocketFactory: TrustedSocketFactory,
     private val oauthTokenProvider: OAuth2TokenProvider?,
+    private val logger: Logger,
 ) {
     private val host = serverSettings.host
     private val port = serverSettings.port
@@ -75,12 +76,14 @@ class SmtpTransport(
     private var retryOAuthWithNewToken = false
     private var isPipeliningSupported = false
 
-    private val logger: SmtpLogger = object : SmtpLogger {
+    private val smtpLogger: SmtpLogger = object : SmtpLogger {
         override val isRawProtocolLoggingEnabled: Boolean
             get() = K9MailLib.isDebug()
 
         override fun log(throwable: Throwable?, message: String, vararg args: Any?) {
-            Log.v(TAG, throwable, message, *args)
+            logger.verbose(tag = TAG, throwable = throwable) {
+                if (args.isEmpty()) message else message.format(*args)
+            }
         }
     }
 
@@ -101,7 +104,7 @@ class SmtpTransport(
             socket.soTimeout = SOCKET_READ_TIMEOUT
 
             inputStream = PeekableInputStream(BufferedInputStream(socket.getInputStream(), 1024))
-            responseParser = SmtpResponseParser(logger, inputStream!!)
+            responseParser = SmtpResponseParser(smtpLogger, inputStream!!)
             outputStream = BufferedOutputStream(socket.getOutputStream(), 1024)
 
             readGreeting()
@@ -125,7 +128,7 @@ class SmtpTransport(
                     )
                     this.socket = tlsSocket
                     inputStream = PeekableInputStream(BufferedInputStream(tlsSocket.getInputStream(), 1024))
-                    responseParser = SmtpResponseParser(logger, inputStream!!)
+                    responseParser = SmtpResponseParser(smtpLogger, inputStream!!)
                     outputStream = BufferedOutputStream(tlsSocket.getOutputStream(), 1024)
 
                     // Now resend the EHLO. Required by RFC2487 Sec. 5.2, and more specifically, Exim.
@@ -225,7 +228,7 @@ class SmtpTransport(
             connectException = try {
                 return connectToAddress(address)
             } catch (e: IOException) {
-                Log.w(TAG, e, "Could not connect to %s", address)
+                logger.warn(tag = TAG, throwable = e) { "Could not connect to $address" }
                 e
             }
         }
@@ -235,7 +238,7 @@ class SmtpTransport(
 
     private fun connectToAddress(address: InetAddress): Socket {
         if (K9MailLib.isDebug() && K9MailLib.DEBUG_PROTOCOL_SMTP) {
-            Log.d(TAG, "Connecting to %s as %s", host, address)
+            logger.debug(tag = TAG) { "Connecting to $host as $address" }
         }
 
         val socketAddress = InetSocketAddress(address, port)
@@ -262,7 +265,7 @@ class SmtpTransport(
     private fun logResponse(smtpResponse: SmtpResponse, sensitive: Boolean = false) {
         if (K9MailLib.isDebug()) {
             val omitText = sensitive && !K9MailLib.isDebugSensitive()
-            Log.v(TAG, "%s", smtpResponse.toLogString(omitText, linePrefix = "SMTP <<< "))
+            logger.verbose(tag = TAG) { smtpResponse.toLogString(omitText, linePrefix = "SMTP <<< ") }
         }
     }
 
@@ -274,7 +277,7 @@ class SmtpTransport(
                 largestAcceptableMessage = size
             } else {
                 if (K9MailLib.isDebug() && K9MailLib.DEBUG_PROTOCOL_SMTP) {
-                    Log.d(TAG, "SIZE parameter is not a valid integer: %s", sizeParameter)
+                    logger.debug(tag = TAG) { "SIZE parameter is not a valid integer: $sizeParameter" }
                 }
             }
         }
@@ -302,13 +305,13 @@ class SmtpTransport(
             helloResponse.keywords
         } else {
             if (K9MailLib.isDebug()) {
-                Log.v(TAG, "Server doesn't support the EHLO command. Trying HELO...")
+                logger.verbose(tag = TAG) { "Server doesn't support the EHLO command. Trying HELO..." }
             }
 
             try {
                 executeCommand("HELO %s", host)
             } catch (e: NegativeSmtpReplyException) {
-                Log.w(TAG, "Server doesn't support the HELO command. Continuing anyway.")
+                logger.warn(tag = TAG) { "Server doesn't support the HELO command. Continuing anyway." }
             }
 
             emptyMap()
@@ -417,7 +420,9 @@ class SmtpTransport(
 
     private fun ensureClosed() {
         if (inputStream != null || outputStream != null || socket != null || responseParser != null) {
-            Log.w(TAG, RuntimeException(), "SmtpTransport was open when it was expected to be closed")
+            logger.warn(tag = TAG, throwable = RuntimeException()) {
+                "SmtpTransport was open when it was expected to be closed"
+            }
             close()
         }
     }
@@ -450,7 +455,7 @@ class SmtpTransport(
             } else {
                 "SMTP >>> $command"
             }
-            Log.d(TAG, commandToLog)
+            logger.debug(tag = TAG) { commandToLog }
         }
 
         // Important: Send command + CRLF using just one write() call. Using multiple calls might result in multiple
@@ -552,7 +557,7 @@ class SmtpTransport(
     }
 
     private fun saslOAuth(method: OAuthMethod) {
-        Log.d(TAG, "saslOAuth() called with: method = $method")
+        logger.debug(tag = TAG) { "saslOAuth() called with: method = $method" }
         retryOAuthWithNewToken = true
         checkNotNull(oauthTokenProvider) { "No OAuth2TokenProvider available." }
 
@@ -567,11 +572,11 @@ class SmtpTransport(
         val negativeResponses = authenticateUsers(users, method)
 
         if (negativeResponses.isNotEmpty()) {
-            Log.w(TAG, "failed to authenticate with all discovered users.")
+            logger.warn(tag = TAG) { "failed to authenticate with all discovered users." }
             val (user, negativeResponse) = negativeResponses[username]?.let { username to it }
                 ?: negativeResponses.entries.first().toPair()
 
-            logger.log("invalidating current token")
+            smtpLogger.log("invalidating current token")
             oauthTokenProvider.invalidateToken()
 
             if (!retryOAuthWithNewToken) {
@@ -592,13 +597,13 @@ class SmtpTransport(
     ): MutableMap<String, NegativeSmtpReplyException> {
         val negativeResponses = mutableMapOf<String, NegativeSmtpReplyException>()
         val sensitiveLog = "*sensitive*"
-        logger.log("users = ${users.takeIf { K9MailLib.isDebugSensitive() } ?: "[${users.size} emails found]"}")
+        smtpLogger.log("users = ${users.takeIf { K9MailLib.isDebugSensitive() } ?: "[${users.size} emails found]"}")
 
         val iterator = users.iterator()
         while (iterator.hasNext()) {
             val user = iterator.next()
             try {
-                logger.log(
+                smtpLogger.log(
                     "trying to authenticate with user '${
                         user.takeIf { K9MailLib.isDebugSensitive() } ?: sensitiveLog
                     }'",
@@ -607,7 +612,7 @@ class SmtpTransport(
                 negativeResponses.clear()
                 break
             } catch (negativeResponse: NegativeSmtpReplyException) {
-                Log.w(TAG, negativeResponse, "saslOAuth: failed to authenticate.")
+                logger.warn(tag = TAG, throwable = negativeResponse) { "saslOAuth: failed to authenticate." }
                 if (negativeResponse.replyCode != SMTP_AUTHENTICATION_FAILURE_ERROR_CODE) {
                     throw negativeResponse
                 }
@@ -636,7 +641,9 @@ class SmtpTransport(
     ) {
         // Token was invalid. We could avoid this double check if we had a reasonable chance of knowing if a token was
         // invalid before use (e.g. due to expiry). But we don't. This is the intended behaviour per AccountManager.
-        Log.v(TAG, negativeResponseFromOldToken, "Authentication exception, re-trying with new token")
+        logger.verbose(tag = TAG, throwable = negativeResponseFromOldToken) {
+            "Authentication exception, re-trying with new token"
+        }
 
         try {
             attempOAuth(method, username)
@@ -646,7 +653,9 @@ class SmtpTransport(
             }
 
             // Okay, we failed on a new token. Invalidate the token anyway but assume it's permanent.
-            Log.v(TAG, negativeResponseFromNewToken, "Authentication exception for new token, permanent error assumed")
+            logger.verbose(tag = TAG, throwable = negativeResponseFromNewToken) {
+                "Authentication exception for new token, permanent error assumed"
+            }
 
             oauthTokenProvider!!.invalidateToken()
             handlePermanentOAuthFailure(method, negativeResponseFromNewToken)
@@ -694,7 +703,7 @@ class SmtpTransport(
         try {
             open()
         } catch (e: Exception) {
-            Log.e(TAG, e, "Error while checking server settings")
+            logger.error(tag = TAG, throwable = e) { "Error while checking server settings" }
             throw e
         } finally {
             close()
